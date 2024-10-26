@@ -8,6 +8,8 @@ public class CardGameM {
 
         int n = 4;
 
+        List<Integer> pack = HelperFunctions.readPack("four.txt", n);
+        System.out.println(pack.size());
         // Init decks
         for (int i = 0; i < n; i++) {
             decks.add(new Deck(i + 1));
@@ -16,10 +18,8 @@ public class CardGameM {
         // Init players
         for (int i = 0; i < n; i++) {
             players.add(new Player(i, decks.get(i), decks.get(i==0?decks.size()-1:i-1)));
-            int j = i+1;
-            System.out.println(
-                    "Player " + j + " has left deck: " + decks.get(i).getId() + " and right deck: "
-                            + decks.get(i + 1 < n ? i + 1 : 0).getId());
         }
+
+        HelperFunctions.distributeCards(players, decks, pack);
     }
 }

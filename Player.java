@@ -14,6 +14,10 @@ public class Player implements Runnable {
         this.rightDeck = rightDeck;
     }
 
+    public void addCard(int card) {
+        hand.add(card);
+    }
+
     @Override
     public void run() {
         

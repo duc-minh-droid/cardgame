@@ -12,6 +12,10 @@ public class Deck {
         this.id = id;
     }
 
+    public void addCard(int card) {
+        cards.add(card);
+    }
+
     public int getId() {
         return id;
     }

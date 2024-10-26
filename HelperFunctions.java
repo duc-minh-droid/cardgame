@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class HelperFunctions {
-    private static List<Integer> readPack(String filePath, int n) {
+    public static List<Integer> readPack(String filePath, int n) {
         List<Integer> pack = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -14,38 +14,24 @@ public class HelperFunctions {
         }
         return pack.size() == 8 * n ? pack : null; // Check if the list size is as expected
     }
-    public static void main(String[] args) {
-        // Create a Scanner to read input from the terminal
-        Scanner scanner = new Scanner(System.in);
 
-        // Prompt the user to enter the number of players
-        System.out.println("Enter the number of players:");
-        int n = scanner.nextInt();
+    public static void distributeCards(List<Player> players, List<Deck> decks, List<Integer> pack) {
+        int n = players.size();
+        Iterator<Integer> iterator = pack.iterator();
 
-        // Consume the newline character left by nextInt()
-        scanner.nextLine();
-
-        // Prompt the user to enter the file path
-        System.out.print("Please enter the file path: ");
-        String filePath = scanner.nextLine();
-
-        // Close the scanner
-        scanner.close();
-
-        // Read the pack file
-        List<Integer> pack = readPack(filePath, n);
-        if (pack == null) {
-            System.out.println("Invalid pack file. Please provide a valid pack.");
-            return;
+        // Distribute cards to players
+        for (int i = 0; i < 4 * n; i++) {
+            int card = iterator.next();
+            players.get(i % n).addCard(card);
+            System.out.println("Distributed card " + card + " to player " + (i % n + 1));
         }
 
-        // Print the file content
-        System.out.println("File Contents:\n" + pack);
-        
-        List<Integer> pack = readPack(packFilePath, n);
-        if (pack == null) {
-            System.out.println("Invalid pack file. Please provide a valid pack.");
-            return;
+        // Distribute remaining cards to decks
+        for (int i = 0; i < 4 * n; i++) {
+            int card = iterator.next();
+            decks.get(i % n).addCard(card);
+            System.out.println("Distributed card " + card + " to deck " + (i % n + 1));
         }
     }
+    
 }
