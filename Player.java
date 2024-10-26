@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Player implements Runnable {
     private final int id;
@@ -27,19 +29,69 @@ public class Player implements Runnable {
         rightDeck.addCard(cardToDiscard);
     }
 
+    public Boolean hasWinningHand() {
+        int firstCardValue = hand.get(0);
+        for (int i = 1; i < hand.size(); i++) {
+            if (hand.get(i) != firstCardValue) {
+                return false; // Found a card that is different
+            }
+        }
+        return true;
+    }
+
     public void playTurn() {
-        synchronized (leftDeck) {
-            System.out.println("Before: " + hand.toString());
-            drawCard();
-            synchronized (rightDeck) {
-                discardCard(0);
-                System.out.println("After: " + hand.toString());
+    synchronized (leftDeck) {
+        System.out.println("Before: " + hand.toString());
+
+        // Step 1: Draw a card from the left deck
+        drawCard();
+
+        synchronized (rightDeck) {
+            // Step 2: Count the frequency of each card in the hand
+            Map<Integer, Integer> frequencyMap = new HashMap<>();
+            for (int card : hand) {
+                frequencyMap.put(card, frequencyMap.getOrDefault(card, 0) + 1);
+            }
+
+            // Step 3: Determine the most frequent card value
+            int preferredCard = hand.get(0);
+            int maxFrequency = 0;
+
+            for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
+                if (entry.getValue() > maxFrequency) {
+                    preferredCard = entry.getKey();
+                    maxFrequency = entry.getValue();
+                }
+            }
+
+            // Step 4: Find a card to discard that is not the preferred card
+            int discardIndex = -1;
+            for (int i = 0; i < hand.size(); i++) {
+                if (hand.get(i) != preferredCard) {
+                    discardIndex = i;
+                    break;
+                }
+            }
+
+            // Step 5: If no non-preferred card found, discard the first card
+            if (discardIndex == -1) {
+                discardIndex = 0;
+            }
+
+            // Step 6: Discard the selected card
+            discardCard(discardIndex);
+
+            System.out.println("After: " + hand.toString());
             }
         }
     }
 
+
     @Override
     public void run() {
-
+        while (!hasWinningHand()) {
+            playTurn();
+        }
+        GameStatus.declareWinner();
     }
 }
