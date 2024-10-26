@@ -13,4 +13,9 @@ public class Player implements Runnable {
         this.leftDeck = leftDeck;
         this.rightDeck = rightDeck;
     }
+
+    @Override
+    public void run() {
+        
+    }
 }
