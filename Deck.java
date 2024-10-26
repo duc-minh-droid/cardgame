@@ -16,6 +16,10 @@ public class Deck {
         cards.add(card);
     }
 
+    public int drawCard() {
+        return cards.poll();
+    }
+
     public int getId() {
         return id;
     }

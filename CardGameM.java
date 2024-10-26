@@ -23,5 +23,7 @@ public class CardGameM {
 
         // Distribute cards
         HelperFunctions.distributeCards(players, decks, pack);
+
+        players.get(0).playTurn();
     }
 }

@@ -18,8 +18,28 @@ public class Player implements Runnable {
         hand.add(card);
     }
 
+    private void drawCard() {
+        hand.add(leftDeck.drawCard());
+    }
+
+    private void discardCard(int id) {
+        int cardToDiscard = hand.remove(id);
+        rightDeck.addCard(cardToDiscard);
+    }
+
+    public void playTurn() {
+        synchronized (leftDeck) {
+            System.out.println("Before: " + hand.toString());
+            drawCard();
+            synchronized (rightDeck) {
+                discardCard(0);
+                System.out.println("After: " + hand.toString());
+            }
+        }
+    }
+
     @Override
     public void run() {
-        
+
     }
 }
