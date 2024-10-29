@@ -27,7 +27,6 @@ public class Player implements Runnable {
     private void discardCard(int id) {
         int cardToDiscard = hand.remove(id);
         rightDeck.addCard(cardToDiscard);
-        System.out.println("Player" + id + "discarded card" + cardToDiscard);
     }
 
     public Boolean hasWinningHand() {
@@ -42,7 +41,7 @@ public class Player implements Runnable {
 
     public void playTurn() {
     synchronized (leftDeck) {
-        System.out.println("Player " + id + " hand before draw: " + hand);
+        System.out.println("Before: " + hand.toString());
 
         // Step 1: Draw a card from the left deck
         drawCard();
@@ -90,17 +89,8 @@ public class Player implements Runnable {
 
     @Override
     public void run() {
-        while (!hasWinningHand() && !GameStatus.isGameWon()) {
+        while (!hasWinningHand()) {
             playTurn();
-            try{
-                Thread.sleep(100);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-        }
-        
-        if (hasWinningHand()){
-            System.out.println("Player " + id+ "has a winning hand");
         }
         GameStatus.declareWinner();
     }
