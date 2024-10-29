@@ -1,8 +1,9 @@
 import java.util.concurrent.locks.*;
 
-class GameStatus {
+public class GameStatus {
     private static final Lock lock = new ReentrantLock();
     private static boolean gameWon = false;
+    private static int winnerId = -1; // To store the ID of the winning player
 
     public static boolean isGameWon() {
         lock.lock();
@@ -13,11 +14,23 @@ class GameStatus {
         }
     }
 
-    public static void declareWinner() {
+    public static void declareWinner(int playerId) {
         lock.lock();
         try {
-            gameWon = true; // Set the gameWon flag to true to stop all player threads
-            System.out.println("Game has a winner. Stopping all threads.");
+            if (!gameWon) {
+                gameWon = true;
+                winnerId = playerId; // Store the winner's ID
+                System.out.println("Player " + winnerId + " won!");
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public static int getWinnerId() {
+        lock.lock();
+        try {
+            return winnerId;
         } finally {
             lock.unlock();
         }

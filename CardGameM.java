@@ -9,7 +9,6 @@ public class CardGameM {
         // Get user input 
         int n = 4;
         List<Integer> pack = HelperFunctions.readPack("four.txt", n);
-        System.out.println(pack.size());
 
         // Init decks
         for (int i = 0; i < n; i++) {
@@ -24,6 +23,23 @@ public class CardGameM {
         // Distribute cards
         HelperFunctions.distributeCards(players, decks, pack);
 
-        players.get(0).playTurn();
+        // All players start playing
+        List<Thread> threads = new ArrayList<>();
+        for (Player player : players) {
+            Thread thread = new Thread(player);
+            threads.add(thread);
+            thread.start();
+        }
+
+        // Wait for all player threads to finish
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("Game has ended.");
     }
 }

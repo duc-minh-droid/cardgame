@@ -16,7 +16,7 @@ public class Deck {
         cards.add(card);
     }
 
-    public int drawCard() {
+    public Integer drawCard() {
         return cards.poll();
     }
 

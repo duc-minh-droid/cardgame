@@ -23,14 +23,12 @@ public class HelperFunctions {
         for (int i = 0; i < 4 * n; i++) {
             int card = iterator.next();
             players.get(i % n).addCard(card);
-            System.out.println("Distributed card " + card + " to player " + (i % n + 1));
         }
 
         // Distribute remaining cards to decks
         for (int i = 0; i < 4 * n; i++) {
             int card = iterator.next();
             decks.get(i % n).addCard(card);
-            System.out.println("Distributed card " + card + " to deck " + (i % n + 1));
         }
     }
     

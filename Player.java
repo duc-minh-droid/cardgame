@@ -21,7 +21,12 @@ public class Player implements Runnable {
     }
 
     private void drawCard() {
-        hand.add(leftDeck.drawCard());
+        Integer card = leftDeck.drawCard();
+        if (card != null) {
+            hand.add(card);
+        } else {
+            System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
+        }
     }
 
     private void discardCard(int id) {
@@ -40,58 +45,59 @@ public class Player implements Runnable {
     }
 
     public void playTurn() {
-    synchronized (leftDeck) {
-        System.out.println("Before: " + hand.toString());
+        if (GameStatus.isGameWon()) {
+            System.out.println("Player " + (id + 1) + " stops playing because the game has ended.");
+            return;
+        }
 
-        // Step 1: Draw a card from the left deck
-        drawCard();
+        System.out.println("Player " + (id + 1) + " is playing...\n");
+        synchronized (leftDeck) {
+            // Step 1: Draw a card from the left deck
+            drawCard();
 
-        synchronized (rightDeck) {
-            // Step 2: Count the frequency of each card in the hand
-            Map<Integer, Integer> frequencyMap = new HashMap<>();
-            for (int card : hand) {
-                frequencyMap.put(card, frequencyMap.getOrDefault(card, 0) + 1);
-            }
-
-            // Step 3: Determine the most frequent card value
-            int preferredCard = hand.get(0);
-            int maxFrequency = 0;
-
-            for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
-                if (entry.getValue() > maxFrequency) {
-                    preferredCard = entry.getKey();
-                    maxFrequency = entry.getValue();
+            synchronized (rightDeck) {
+                // Step 2: Count the frequency of each card in the hand
+                Map<Integer, Integer> frequencyMap = new HashMap<>();
+                for (int card : hand) {
+                    frequencyMap.put(card, frequencyMap.getOrDefault(card, 0) + 1);
                 }
-            }
 
-            // Step 4: Find a card to discard that is not the preferred card
-            int discardIndex = -1;
-            for (int i = 0; i < hand.size(); i++) {
-                if (hand.get(i) != preferredCard) {
-                    discardIndex = i;
-                    break;
+                // Step 3: Determine the most frequent card value
+                int preferredCard = hand.get(0);
+                int maxFrequency = 0;
+
+                for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
+                    if (entry.getValue() > maxFrequency) {
+                        preferredCard = entry.getKey();
+                        maxFrequency = entry.getValue();
+                    }
                 }
-            }
 
-            // Step 5: If no non-preferred card found, discard the first card
-            if (discardIndex == -1) {
-                discardIndex = 0;
-            }
+                // Step 4: Find a card to discard that is not the preferred card
+                int discardIndex = -1;
+                for (int i = 0; i < hand.size(); i++) {
+                    if (hand.get(i) != preferredCard) {
+                        discardIndex = i;
+                        break;
+                    }
+                }
 
-            // Step 6: Discard the selected card
-            discardCard(discardIndex);
-
-            System.out.println("After: " + hand.toString());
+                // Step 5: If no non-preferred card found, discard the first card
+                if (discardIndex == -1) {
+                    discardIndex = 0;
+                }
+                discardCard(discardIndex);
             }
         }
     }
 
-
     @Override
     public void run() {
-        while (!hasWinningHand()) {
+        while (!hasWinningHand() && !GameStatus.isGameWon()) {
             playTurn();
         }
-        GameStatus.declareWinner();
+        if (hasWinningHand()) {
+            GameStatus.declareWinner(id + 1);
+        }
     }
 }
