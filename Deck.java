@@ -6,21 +6,39 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Deck {
     private final int id;
     private final Queue<Integer> cards = new LinkedList<>();
-    // private final Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
     public Deck(int id) {
         this.id = id;
     }
 
     public void addCard(int card) {
-        cards.add(card);
+        lock.lock();
+        try{
+            cards.add(card);
+        }finally{
+            lock.unlock();
+        }
     }
 
     public Integer drawCard() {
-        return cards.poll();
+        lock.lock();
+        try{
+            return cards.poll();
+        } finally{
+            lock.unlock();
+        }
     }
 
     public int getId() {
         return id;
+    }
+
+    public void lock() {
+        lock.lock();
+    }
+
+    public void unlock() {
+        lock.unlock();
     }
 }

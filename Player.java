@@ -21,17 +21,30 @@ public class Player implements Runnable {
     }
 
     private void drawCard() {
-        Integer card = leftDeck.drawCard();
-        if (card != null) {
-            hand.add(card);
-        } else {
-            System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
+        leftDeck.lock();
+        try{
+            Integer card = leftDeck.drawCard();
+            if (card != null) {
+                hand.add(card);
+                System.out.println("Player " + (id + 1) + " draw a " + card);
+            } else {
+                System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
+            }
+        } finally{
+            leftDeck.unlock();
         }
     }
 
     private void discardCard(int id) {
-        int cardToDiscard = hand.remove(id);
-        rightDeck.addCard(cardToDiscard);
+        rightDeck.lock();
+        try{
+            int cardToDiscard = hand.remove(id);
+            rightDeck.addCard(cardToDiscard);
+            System.out.println("Player " + (id + 1) + " discard a " + cardToDiscard);
+
+        } finally{
+            rightDeck.unlock();
+        }
     }
 
     public Boolean hasWinningHand() {
@@ -51,11 +64,22 @@ public class Player implements Runnable {
         }
 
         System.out.println("Player " + (id + 1) + " is playing...\n");
-        synchronized (leftDeck) {
+        // synchronized (leftDeck) {
+            
             // Step 1: Draw a card from the left deck
+            if (GameStatus.isGameWon() || Thread.currentThread().isInterrupted()) {
+                return;
+            }
+        
+            synchronized (leftDeck) {
+                // Game status check before drawing a card
+                if (GameStatus.isGameWon() || Thread.currentThread().isInterrupted()) {
+                    return;
+                }
+            }
             drawCard();
 
-            synchronized (rightDeck) {
+            // synchronized (rightDeck) {
                 // Step 2: Count the frequency of each card in the hand
                 Map<Integer, Integer> frequencyMap = new HashMap<>();
                 for (int card : hand) {
@@ -86,10 +110,16 @@ public class Player implements Runnable {
                 if (discardIndex == -1) {
                     discardIndex = 0;
                 }
+                
+                if (GameStatus.isGameWon() || Thread.currentThread().isInterrupted()) {
+                    return;
+                }
+        
                 discardCard(discardIndex);
-            }
+                System.out.println("Player " + (id + 1) + " ends turn with hand: " + hand);
+            // }
         }
-    }
+    // }
 
     @Override
     public void run() {

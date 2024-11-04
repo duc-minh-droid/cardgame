@@ -12,7 +12,9 @@ public class HelperFunctions {
         } catch (IOException | NumberFormatException e) {
             return null; // Return null if an error occurs
         }
+        Collections.shuffle(pack);
         return pack.size() == 8 * n ? pack : null; // Check if the list size is as expected
+
     }
 
     public static void distributeCards(List<Player> players, List<Deck> decks, List<Integer> pack) {

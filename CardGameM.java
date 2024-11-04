@@ -31,15 +31,21 @@ public class CardGameM {
             thread.start();
         }
 
-        // Wait for all player threads to finish
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        synchronized (GameStatus.class) {
+            while (GameStatus.getWinningPlayerId() == -1) {
+                try {
+                    GameStatus.class.wait();  // Wait until notified of a winner
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        System.out.println("Game has ended.");
+        // Interrupt all threads to stop them immediately
+        for (Thread thread : threads) {
+            thread.interrupt();
+        }
+
+        System.out.println("Game has ended. Player " + GameStatus.getWinningPlayerId() + " is the winner!");
     }
 }
