@@ -7,15 +7,13 @@ import java.util.concurrent.locks.*;
 public class Player extends Thread {
     private final int id;
     private final List<Integer> hand = new ArrayList<>();
-    private final Deck leftDeck;
-    private final Deck rightDeck;
+    public final Deck leftDeck;
     private final CardGameM game;
     private static final Lock turnLock = new ReentrantLock();
 
-    public Player(int id, Deck leftDeck, Deck rightDeck, CardGameM game) {
+    public Player(int id, Deck leftDeck, CardGameM game) {
         this.id = id;
         this.leftDeck = leftDeck;
-        this.rightDeck = rightDeck;
         this.game = game;
     }
 
@@ -23,7 +21,7 @@ public class Player extends Thread {
         hand.add(card);
     }
 
-    private void drawCard() {
+    private synchronized void drawCard() {
         if (leftDeck.isEmpty()) {
             System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
             return;
@@ -37,7 +35,7 @@ public class Player extends Thread {
         }
     }
 
-    private void discardCard(int index) {
+    private synchronized void discardCard(int index) {
         // rightDeck.lock();
         // try {
         //     int cardToDiscard = hand.remove(index);
@@ -47,7 +45,8 @@ public class Player extends Thread {
         //     rightDeck.unlock();
         // }
         int cardToDiscard = hand.remove(index);
-        rightDeck.addCard(cardToDiscard);
+        // rightDeck.addCard(cardToDiscard);
+        game.getNextPlayer(this).leftDeck.addCard(cardToDiscard);
         System.out.println("Player " + (id + 1) + " discards a " + cardToDiscard);
     }
 
@@ -69,29 +68,30 @@ public class Player extends Thread {
 
     public void playTurn() {
         // turnLock.lock();
-        if (leftDeck.getId() < rightDeck.getId()) {
-            leftDeck.lock();
-            rightDeck.lock();
-        } else {
-            rightDeck.lock();
-            leftDeck.lock();
-        }
-        try {
-            if (game.isGameWon()) {
-                System.out.println("Player " + (id + 1) + " stops playing because the game has ended.");
-                return;
-            }
+        // Deck rightDeck = game.getNextPlayer(this).leftDeck;
+        // if (leftDeck.getId() < rightDeck.getId()) {
+        //     leftDeck.lock();
+        //     rightDeck.lock();
+        // } else {
+        //     rightDeck.lock();
+        //     leftDeck.lock();
+        // }
+        // try {
+        //     if (game.isGameWon()) {
+        //         System.out.println("Player " + (id + 1) + " stops playing because the game has ended.");
+        //         return;
+        //     }
 
-            System.out.println("Player " + (id + 1) + " is playing...");
+        //     System.out.println("Player " + (id + 1) + " is playing...");
 
             drawCard();
             discardCard(findDiscardIndex());
             System.out.println("Player " + (id + 1) + " ends turn with hand: " + hand);
-        } finally {
-            // turnLock.unlock();
-            rightDeck.unlock();
-            leftDeck.unlock();
-        }
+        // } finally {
+        //     // turnLock.unlock();
+        //     rightDeck.unlock();
+        //     leftDeck.unlock();
+        // }
     }
     private int findDiscardIndex() {
         // Step 2: Count the frequency of each card in the hand
@@ -131,11 +131,27 @@ public class Player extends Thread {
     @Override
     public void run() {
         while (!game.isGameWon() && !Thread.interrupted()) {
-            playTurn();
             if (checkWinningHand()) {
                 game.declareWinner(id + 1);
                 break;
             }
-        }
+            else if (leftDeck.isEmpty()){
+                synchronized (this) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }else {
+                playTurn();
+                synchronized (game.getNextPlayer(this)) {
+                    game.getNextPlayer(this).notify();
+                }
+            }
+        } synchronized (game.getNextPlayer(this)) {
+            game.getNextPlayer(this).notify();
+        } 
+        exitGame();
     }
 }

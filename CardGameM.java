@@ -22,7 +22,7 @@ public class CardGameM {
             decks.add(new Deck(i + 1));
         }
         for (int i = 0; i < n; i++) {
-            players.add(new Player(i, decks.get(i), decks.get(i==0?decks.size()-1:i-1), this));
+            players.add(new Player(i, decks.get(i), this));
         }
         HelperFunctions.distributeCards(players, decks, pack);
     }
@@ -43,6 +43,15 @@ public class CardGameM {
         }
     }
 
+    public Player getNextPlayer(Player p) {
+        int i = players.indexOf(p) + 1;
+        if (i > players.size() - 1) {
+            return players.get(0);
+        } else {
+            return players.get(i);
+        }
+    }
+
     public static void main(String[] args) {
         CardGameM game = new CardGameM();
 
@@ -57,14 +66,14 @@ public class CardGameM {
             thread.start();
         }
 
-        // Wait for all player threads to finish
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        // // Wait for all player threads to finish
+        // for (Thread thread : threads) {
+        //     try {
+        //         thread.join();
+        //     } catch (InterruptedException e) {
+        //         e.printStackTrace();
+        //     }
+        // }
 
         System.out.println("Game has ended.");
     }
