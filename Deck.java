@@ -12,6 +12,14 @@ public class Deck {
         this.id = id;
     }
 
+    public int size() {
+        return cards.size();
+    }
+
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }
+
     public void addCard(int card) {
         lock.lock();
         try{
