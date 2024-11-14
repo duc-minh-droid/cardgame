@@ -16,9 +16,9 @@ public class Deck {
         return cards.size();
     }
 
-    public boolean isEmpty() {
-        return cards.isEmpty();
-    }
+    // public boolean isEmpty() {
+    //     return cards.isEmpty();
+    // }
 
     public void addCard(int card) {
         lock.lock();
