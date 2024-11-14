@@ -41,4 +41,8 @@ public class Deck {
     public void unlock() {
         lock.unlock();
     }
+
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }    
 }
