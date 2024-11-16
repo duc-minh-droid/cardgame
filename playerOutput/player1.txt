@@ -1,31 +1,47 @@
+Player 1: Draws a 8
+Player 1: Discards a 5
+Player 1: Ends turn with hand: [7, 7, 4, 8]
+Player 1: Draws a 8
+Player 1: Discards a 4
+Player 1: Ends turn with hand: [7, 7, 8, 8]
+Player 1: Draws a 6
+Player 1: Discards a 8
+Player 1: Ends turn with hand: [7, 7, 8, 6]
 Player 1: Draws a 7
-Player 1: Discards a 3
-Player 1: Ends turn with hand: [5, 1, 5, 7]
-Player 1: Draws a 5
-Player 1: Discards a 1
-Player 1: Ends turn with hand: [5, 5, 7, 5]
+Player 1: Discards a 8
+Player 1: Ends turn with hand: [7, 7, 6, 7]
 Player 1: Draws a 1
-Player 1: Discards a 7
-Player 1: Ends turn with hand: [5, 5, 5, 1]
+Player 1: Discards a 6
+Player 1: Ends turn with hand: [7, 7, 7, 1]
 Player 1: Draws a 3
 Player 1: Discards a 1
-Player 1: Ends turn with hand: [5, 5, 5, 3]
-Player 1: Draws a 2
+Player 1: Ends turn with hand: [7, 7, 7, 3]
+Player 1: Draws a 8
 Player 1: Discards a 3
-Player 1: Ends turn with hand: [5, 5, 5, 2]
-Player 1: Draws a 1
+Player 1: Ends turn with hand: [7, 7, 7, 8]
+Player 1: Draws a 4
+Player 1: Discards a 8
+Player 1: Ends turn with hand: [7, 7, 7, 4]
+Player 1: Draws a 2
+Player 1: Discards a 4
+Player 1: Ends turn with hand: [7, 7, 7, 2]
+Player 1: Draws a 3
 Player 1: Discards a 2
-Player 1: Ends turn with hand: [5, 5, 5, 1]
+Player 1: Ends turn with hand: [7, 7, 7, 3]
 Player 1: Draws a 8
-Player 1: Discards a 1
-Player 1: Ends turn with hand: [5, 5, 5, 8]
-Player 1: Draws a 8
+Player 1: Discards a 3
+Player 1: Ends turn with hand: [7, 7, 7, 8]
+Player 1: Draws a 1
 Player 1: Discards a 8
-Player 1: Ends turn with hand: [5, 5, 5, 8]
-Player 1: Draws a 7
-Player 1: Discards a 8
-Player 1: Ends turn with hand: [5, 5, 5, 7]
+Player 1: Ends turn with hand: [7, 7, 7, 1]
 Player 1: Draws a 6
-Player 1: Discards a 7
-Player 1: Ends turn with hand: [5, 5, 5, 6]
+Player 1: Discards a 1
+Player 1: Ends turn with hand: [7, 7, 7, 6]
+Player 1: Draws a 3
+Player 1: Discards a 6
+Player 1: Ends turn with hand: [7, 7, 7, 3]
+Player 1: Draws a 7
+Player 1: Discards a 3
+Player 1: Ends turn with hand: [7, 7, 7, 7]
+Player 1: Wins the game!
 Player 1: Game has ended.

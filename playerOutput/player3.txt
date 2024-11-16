@@ -1,29 +1,46 @@
 Player 3: Draws a 1
+Player 3: Discards a 5
+Player 3: Ends turn with hand: [8, 2, 2, 1]
+Player 3: Draws a 6
+Player 3: Discards a 8
+Player 3: Ends turn with hand: [2, 2, 1, 6]
+Player 3: Draws a 3
+Player 3: Discards a 1
+Player 3: Ends turn with hand: [2, 2, 6, 3]
+Player 3: Draws a 7
 Player 3: Discards a 6
-Player 3: Ends turn with hand: [4, 4, 7, 1]
+Player 3: Ends turn with hand: [2, 2, 3, 7]
+Player 3: Draws a 6
+Player 3: Discards a 3
+Player 3: Ends turn with hand: [2, 2, 7, 6]
 Player 3: Draws a 4
 Player 3: Discards a 7
-Player 3: Ends turn with hand: [4, 4, 1, 4]
-Player 3: Draws a 5
-Player 3: Discards a 1
-Player 3: Ends turn with hand: [4, 4, 4, 5]
+Player 3: Ends turn with hand: [2, 2, 6, 4]
+Player 3: Draws a 3
+Player 3: Discards a 6
+Player 3: Ends turn with hand: [2, 2, 4, 3]
 Player 3: Draws a 2
-Player 3: Discards a 5
-Player 3: Ends turn with hand: [4, 4, 4, 2]
-Player 3: Draws a 8
-Player 3: Discards a 2
-Player 3: Ends turn with hand: [4, 4, 4, 8]
+Player 3: Discards a 4
+Player 3: Ends turn with hand: [2, 2, 3, 2]
 Player 3: Draws a 6
-Player 3: Discards a 8
-Player 3: Ends turn with hand: [4, 4, 4, 6]
-Player 3: Draws a 6
-Player 3: Discards a 6
-Player 3: Ends turn with hand: [4, 4, 4, 6]
-Player 3: Draws a 8
-Player 3: Discards a 6
-Player 3: Ends turn with hand: [4, 4, 4, 8]
+Player 3: Discards a 3
+Player 3: Ends turn with hand: [2, 2, 2, 6]
 Player 3: Draws a 4
+Player 3: Discards a 6
+Player 3: Ends turn with hand: [2, 2, 2, 4]
+Player 3: Draws a 5
+Player 3: Discards a 4
+Player 3: Ends turn with hand: [2, 2, 2, 5]
+Player 3: Draws a 4
+Player 3: Discards a 5
+Player 3: Ends turn with hand: [2, 2, 2, 4]
+Player 3: Draws a 8
+Player 3: Discards a 4
+Player 3: Ends turn with hand: [2, 2, 2, 8]
+Player 3: Draws a 8
 Player 3: Discards a 8
-Player 3: Ends turn with hand: [4, 4, 4, 4]
-Player 3: Wins the game!
+Player 3: Ends turn with hand: [2, 2, 2, 8]
+Player 3: Draws a 6
+Player 3: Discards a 8
+Player 3: Ends turn with hand: [2, 2, 2, 6]
 Player 3: Game has ended.
