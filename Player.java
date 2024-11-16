@@ -16,20 +16,23 @@ public class Player extends Thread {
         this.id = id;
         this.deck = deck;
         this.game = game;
-        
+
         File outputDir = new File("playerOutput");
         if (!outputDir.exists()) {
             outputDir.mkdir();
         }
-        logFile = new File(outputDir, "player" + (id + 1) + ".txt");
+        logFile = new File(outputDir, "player" + (id + 1) + "_output.txt");
 
-        // Clear existing content in the log file
+        // Clear existing content in the log file and log initial hand
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
-            // Writing an empty string clears the file
-            writer.write("");
+            writer.write(""); // Clear file
         } catch (IOException e) {
             System.err.println("Error clearing log file for Player " + (id + 1) + ": " + e.getMessage());
         }
+    }
+
+    public void logInitialHand() {
+        logAction("initial hand " + handToString());
     }
 
     public void addCard(int card) {
@@ -38,22 +41,22 @@ public class Player extends Thread {
 
     private synchronized void drawCard() {
         if (deck.isEmpty()) {
-            logAction("Could not draw a card as the deck is empty.");
+            logAction("draws no card as deck is empty");
             return;
         }
         Integer card = deck.drawCard();
         if (card != null) {
             hand.add(card);
-            logAction("Draws a " + card);
+            logAction("draws a " + card + " from deck " + deck.getId());
         } else {
-            logAction("Could not draw a card as the deck is empty.");
+            logAction("draws no card as deck is empty");
         }
     }
 
     private synchronized void discardCard(int index) {
         int cardToDiscard = hand.remove(index);
         game.getNextPlayer(this).deck.addCard(cardToDiscard);
-        logAction("Discards a " + cardToDiscard);
+        logAction("discards a " + cardToDiscard + " to deck " + game.getNextPlayer(this).deck.getId());
     }
 
     public Boolean checkWinningHand() {
@@ -67,10 +70,25 @@ public class Player extends Thread {
     }
 
     public void playTurn() {
-        drawCard();
-        discardCard(findDiscardIndex());
-        logAction("Ends turn with hand: " + hand);
+        Deck nextPlayerDeck = game.getNextPlayer(this).deck;
+    
+        // Ensure decks are locked in a consistent order to avoid deadlocks
+        Deck firstLock = deck.getId() < nextPlayerDeck.getId() ? deck : nextPlayerDeck;
+        Deck secondLock = deck.getId() < nextPlayerDeck.getId() ? nextPlayerDeck : deck;
+    
+        synchronized (firstLock) {
+            synchronized (secondLock) {
+                if (Thread.interrupted() || game.winningPlayer.get() != 0) {
+                    return;
+                }
+    
+                drawCard();
+                discardCard(findDiscardIndex());
+                logAction("current hand " + handToString());
+            }
+        }
     }
+    
 
     private int findDiscardIndex() {
         Map<Integer, Integer> frequencyMap = new HashMap<>();
@@ -105,46 +123,79 @@ public class Player extends Thread {
 
     @Override
     public void run() {
-        while (game.winningPlayer.get() == 0) {
-            if (checkWinningHand()) {
-                if (game.winningPlayer.compareAndSet(0, id + 1)) {
-                    logAction("Wins the game!");
-                    game.notifyAllPlayers();
+        try {
+            while (game.winningPlayer.get() == 0) {
+                if (Thread.interrupted()) {
+                    logAction("Thread was interrupted, ending game.");
                     break;
                 }
-            } else if (deck.isEmpty()) {
-                synchronized (this) {
-                    try {
-                        logAction("Waiting for the deck to be refilled.");
-                        wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+
+                if (deck.isEmpty()) {
+                    synchronized (this) {
+                        try {
+                            logAction("waiting for the deck to be refilled.");
+                            wait();
+                        } catch (InterruptedException e) {
+                            logAction("Interrupted while waiting for deck refill.");
+                            break;
+                        }
+                    }
+                } else {
+                    playTurn();
+
+                    // Check if the current player has won
+                    if (checkWinningHand()) {
+                        if (game.winningPlayer.compareAndSet(0, id + 1)) {
+                            logAction("wins");
+                            game.notifyAllPlayers();
+                            break;
+                        }
                     }
                 }
-            } else {
-                playTurn();
-                synchronized (game.getNextPlayer(this)) {
-                    game.getNextPlayer(this).notify();
-                }
+                logEndOfRound();
             }
-        }
-        
-        // Log game end for the player
-        logAction("Game has ended.");
-        
-        // Notify the next player to prevent deadlock
-        synchronized (game.getNextPlayer(this)) {
-            game.getNextPlayer(this).notify();
+        } catch (RuntimeException e) {
+            logAction("Game interrupted due to another player winning.");
+        } finally {
+            // Log final state for all players
+            if (game.winningPlayer.get() == id + 1) {
+                logAction("wins");
+                logAction("exits");
+                logAction("final hand: " + handToString());
+            } else {
+                int winnerId = game.winningPlayer.get();
+                logAction("has informed player " + (id + 1) + " that player " + winnerId + " has won", winnerId);
+                logAction("exits");
+                logAction("hand: " + handToString());
+            }
+
+            // Final notify to prevent deadlock
+            synchronized (game.getNextPlayer(this)) {
+                game.getNextPlayer(this).notify();
+            }
         }
     }
 
 
     private synchronized void logAction(String message) {
+        logAction(message, id + 1); // Default to current player
+    }
+
+    private void logEndOfRound() {
+        int deckSize = deck.size(); // Assuming game has a method to get deck size by ID
+        logAction("end of round: deck size " + deckSize + ", player hand size " + hand.size());
+    }
+    
+    private synchronized void logAction(String message, int informerId) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
-            writer.write("Player " + (id + 1) + ": " + message);
+            writer.write("player " + informerId + " " + message);
             writer.newLine();
         } catch (IOException e) {
             System.err.println("Error writing log for Player " + (id + 1) + ": " + e.getMessage());
         }
+    }
+
+    private String handToString() {
+        return hand.toString().replaceAll("[\\[\\],]", "").trim();
     }
 }

@@ -23,6 +23,9 @@ public class CardGameM {
             players.add(new Player(i, decks.get(i), this));
         }
         HelperFunctions.distributeCards(players, decks, pack);
+        for (Player player : players) {
+            player.logInitialHand();
+        }
     }
 
     public Player getNextPlayer(Player p) {
@@ -35,15 +38,23 @@ public class CardGameM {
     }
 
     public void notifyAllPlayers() {
+        // First interrupt all other players
         for (Player player : players) {
-            if (player != Thread.currentThread()) {  // Don't interrupt the winning thread
-                player.interrupt();  // Interrupt other player threads directly
-            }
-            synchronized (player) {
-                player.notify();
+            if (player != Thread.currentThread()) {
+                player.interrupt();
+                synchronized (player) {
+                    player.notify();  // Wake up any waiting threads
+                }
             }
         }
     }
+
+    public void logDecks() {
+        for (Deck deck : decks) {
+            deck.logDeckContents();
+        }
+    }
+
 
     public static void main(String[] args) {
         CardGameM game = new CardGameM();
@@ -53,6 +64,7 @@ public class CardGameM {
         for (Player p : game.players) {
             (new Thread(p)).start();
         }
+        game.logDecks();
         System.out.println("Game has ended.");
     }
 }
