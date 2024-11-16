@@ -41,7 +41,9 @@ public class Deck {
 
     }
 
-    
+    public boolean isEmpty(){
+        return cards.isEmpty();
+    }
 
     public int getId() {
         return id;
@@ -54,8 +56,4 @@ public class Deck {
     public void unlock() {
         lock.unlock();
     }
-
-    public boolean isEmpty() {
-        return cards.isEmpty();
-    }    
 }
