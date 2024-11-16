@@ -35,8 +35,10 @@ public class CardGameM {
     }
 
     public void notifyAllPlayers() {
-        // Assuming you have a list of players
         for (Player player : players) {
+            if (player != Thread.currentThread()) {  // Don't interrupt the winning thread
+                player.interrupt();  // Interrupt other player threads directly
+            }
             synchronized (player) {
                 player.notify();
             }

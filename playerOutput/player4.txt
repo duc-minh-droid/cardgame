@@ -1,0 +1,25 @@
+Player 4: Draws a 8
+Player 4: Discards a 2
+Player 4: Ends turn with hand: [1, 3, 8, 8]
+Player 4: Draws a 7
+Player 4: Discards a 1
+Player 4: Ends turn with hand: [3, 8, 8, 7]
+Player 4: Draws a 3
+Player 4: Discards a 8
+Player 4: Ends turn with hand: [3, 8, 7, 3]
+Player 4: Draws a 6
+Player 4: Discards a 8
+Player 4: Ends turn with hand: [3, 7, 3, 6]
+Player 4: Draws a 6
+Player 4: Discards a 7
+Player 4: Ends turn with hand: [3, 3, 6, 6]
+Player 4: Draws a 7
+Player 4: Discards a 6
+Player 4: Ends turn with hand: [3, 3, 6, 7]
+Player 4: Draws a 1
+Player 4: Discards a 6
+Player 4: Ends turn with hand: [3, 3, 7, 1]
+Player 4: Draws a 5
+Player 4: Discards a 7
+Player 4: Ends turn with hand: [3, 3, 1, 5]
+Player 4: Game has ended.

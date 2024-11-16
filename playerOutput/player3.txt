@@ -1,0 +1,29 @@
+Player 3: Draws a 1
+Player 3: Discards a 6
+Player 3: Ends turn with hand: [4, 4, 7, 1]
+Player 3: Draws a 4
+Player 3: Discards a 7
+Player 3: Ends turn with hand: [4, 4, 1, 4]
+Player 3: Draws a 5
+Player 3: Discards a 1
+Player 3: Ends turn with hand: [4, 4, 4, 5]
+Player 3: Draws a 2
+Player 3: Discards a 5
+Player 3: Ends turn with hand: [4, 4, 4, 2]
+Player 3: Draws a 8
+Player 3: Discards a 2
+Player 3: Ends turn with hand: [4, 4, 4, 8]
+Player 3: Draws a 6
+Player 3: Discards a 8
+Player 3: Ends turn with hand: [4, 4, 4, 6]
+Player 3: Draws a 6
+Player 3: Discards a 6
+Player 3: Ends turn with hand: [4, 4, 4, 6]
+Player 3: Draws a 8
+Player 3: Discards a 6
+Player 3: Ends turn with hand: [4, 4, 4, 8]
+Player 3: Draws a 4
+Player 3: Discards a 8
+Player 3: Ends turn with hand: [4, 4, 4, 4]
+Player 3: Wins the game!
+Player 3: Game has ended.

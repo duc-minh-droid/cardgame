@@ -1,19 +1,35 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Player implements Runnable {
+public class Player extends Thread {
     private final int id;
     private final List<Integer> hand = new ArrayList<>();
     public final Deck deck;
     private final CardGameM game;
+    private final File logFile;
 
     public Player(int id, Deck deck, CardGameM game) {
         this.id = id;
         this.deck = deck;
         this.game = game;
+        
+        File outputDir = new File("playerOutput");
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
+        }
+        logFile = new File(outputDir, "player" + (id + 1) + ".txt");
+
+        // Clear existing content in the log file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
+            // Writing an empty string clears the file
+            writer.write("");
+        } catch (IOException e) {
+            System.err.println("Error clearing log file for Player " + (id + 1) + ": " + e.getMessage());
+        }
     }
 
     public void addCard(int card) {
@@ -22,31 +38,22 @@ public class Player implements Runnable {
 
     private synchronized void drawCard() {
         if (deck.isEmpty()) {
-            System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
+            logAction("Could not draw a card as the deck is empty.");
             return;
         }
         Integer card = deck.drawCard();
         if (card != null) {
             hand.add(card);
-            System.out.println("Player " + (id + 1) + " draws a " + card);
+            logAction("Draws a " + card);
         } else {
-            System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
+            logAction("Could not draw a card as the deck is empty.");
         }
     }
 
     private synchronized void discardCard(int index) {
-        // rightDeck.lock();
-        // try {
-        //     int cardToDiscard = hand.remove(index);
-        //     rightDeck.addCard(cardToDiscard);
-        //     System.out.println("Player " + (id + 1) + " discards a " + cardToDiscard);
-        // } finally {
-        //     rightDeck.unlock();
-        // }
         int cardToDiscard = hand.remove(index);
-        // rightDeck.addCard(cardToDiscard);
         game.getNextPlayer(this).deck.addCard(cardToDiscard);
-        System.out.println("Player " + (id + 1) + " discards a " + cardToDiscard);
+        logAction("Discards a " + cardToDiscard);
     }
 
     public Boolean checkWinningHand() {
@@ -60,40 +67,17 @@ public class Player implements Runnable {
     }
 
     public void playTurn() {
-        // turnLock.lock();
-        // Deck rightDeck = game.getNextPlayer(this).leftDeck;
-        // if (leftDeck.getId() < rightDeck.getId()) {
-        //     leftDeck.lock();
-        //     rightDeck.lock();
-        // } else {
-        //     rightDeck.lock();
-        //     leftDeck.lock();
-        // }
-        // try {
-        //     if (game.isGameWon()) {
-        //         System.out.println("Player " + (id + 1) + " stops playing because the game has ended.");
-        //         return;
-        //     }
-
-        //     System.out.println("Player " + (id + 1) + " is playing...");
-
-            drawCard();
-            discardCard(findDiscardIndex());
-            System.out.println("Player " + (id + 1) + " ends turn with hand: " + hand);
-        // } finally {
-        //     // turnLock.unlock();
-        //     rightDeck.unlock();
-        //     leftDeck.unlock();
-        // }
+        drawCard();
+        discardCard(findDiscardIndex());
+        logAction("Ends turn with hand: " + hand);
     }
+
     private int findDiscardIndex() {
-        // Step 2: Count the frequency of each card in the hand
         Map<Integer, Integer> frequencyMap = new HashMap<>();
         for (int card : hand) {
             frequencyMap.put(card, frequencyMap.getOrDefault(card, 0) + 1);
         }
 
-        // Step 3: Determine the most frequent card value
         int preferredCard = hand.get(0);
         int maxFrequency = 0;
 
@@ -104,7 +88,6 @@ public class Player implements Runnable {
             }
         }
 
-        // Step 4: Find a card to discard that is not the preferred card
         int discardIndex = -1;
         for (int i = 0; i < hand.size(); i++) {
             if (hand.get(i) != preferredCard) {
@@ -113,7 +96,6 @@ public class Player implements Runnable {
             }
         }
 
-        // Step 5: If no non-preferred card found, discard the first card
         if (discardIndex == -1) {
             discardIndex = 0;
         }
@@ -123,31 +105,46 @@ public class Player implements Runnable {
 
     @Override
     public void run() {
-        while (game.winningPlayer.get()==0) {
+        while (game.winningPlayer.get() == 0) {
             if (checkWinningHand()) {
-                if (game.winningPlayer.compareAndSet(0, id+1)) {
-                    System.out.println("player " + (id+1) + " wins");
+                if (game.winningPlayer.compareAndSet(0, id + 1)) {
+                    logAction("Wins the game!");
                     game.notifyAllPlayers();
                     break;
                 }
-            }
-            else if (deck.isEmpty()){
+            } else if (deck.isEmpty()) {
                 synchronized (this) {
                     try {
+                        logAction("Waiting for the deck to be refilled.");
                         wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
-            }else {
+            } else {
                 playTurn();
                 synchronized (game.getNextPlayer(this)) {
                     game.getNextPlayer(this).notify();
                 }
             }
-        } 
+        }
+        
+        // Log game end for the player
+        logAction("Game has ended.");
+        
+        // Notify the next player to prevent deadlock
         synchronized (game.getNextPlayer(this)) {
             game.getNextPlayer(this).notify();
-        } 
+        }
+    }
+
+
+    private synchronized void logAction(String message) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
+            writer.write("Player " + (id + 1) + ": " + message);
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("Error writing log for Player " + (id + 1) + ": " + e.getMessage());
+        }
     }
 }
