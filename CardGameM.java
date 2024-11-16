@@ -1,14 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CardGameM {
     List<Player> players;        
     List<Deck> decks;
     List<Integer> pack;
-    private static final Lock lock = new ReentrantLock();
-    private static volatile boolean gameWon = false;
-    private static int winningPlayerId = -1;
+    public AtomicInteger winningPlayer = new AtomicInteger(0);
 
     public CardGameM() {
         players = new ArrayList<>();
@@ -27,22 +25,6 @@ public class CardGameM {
         HelperFunctions.distributeCards(players, decks, pack);
     }
 
-    public synchronized boolean isGameWon() {
-        return gameWon;
-    }
-
-    public synchronized int getWinningPlayerId() {
-        return winningPlayerId;
-    }
-
-    public synchronized void declareWinner(int playerId) {
-        if (!gameWon) {
-            gameWon = true;
-            winningPlayerId = playerId;
-            System.out.println("Player " + playerId + " has won the game!");
-        }
-    }
-
     public Player getNextPlayer(Player p) {
         int i = players.indexOf(p) + 1;
         if (i > players.size() - 1) {
@@ -52,29 +34,23 @@ public class CardGameM {
         }
     }
 
+    public void notifyAllPlayers() {
+        // Assuming you have a list of players
+        for (Player player : players) {
+            synchronized (player) {
+                player.notify();
+            }
+        }
+    }
+
     public static void main(String[] args) {
         CardGameM game = new CardGameM();
 
         game.startGame();
 
-        // All players start playing
-        List<Thread> threads = new ArrayList<>();
-
-        for (Player player : game.players) {
-            Thread thread = new Thread(player);
-            threads.add(thread);
-            thread.start();
+        for (Player p : game.players) {
+            (new Thread(p)).start();
         }
-
-        // // Wait for all player threads to finish
-        // for (Thread thread : threads) {
-        //     try {
-        //         thread.join();
-        //     } catch (InterruptedException e) {
-        //         e.printStackTrace();
-        //     }
-        // }
-
         System.out.println("Game has ended.");
     }
 }

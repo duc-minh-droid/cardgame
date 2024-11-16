@@ -4,16 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.*;
 
-public class Player extends Thread {
+public class Player implements Runnable {
     private final int id;
     private final List<Integer> hand = new ArrayList<>();
-    public final Deck leftDeck;
+    public final Deck deck;
     private final CardGameM game;
-    private static final Lock turnLock = new ReentrantLock();
 
-    public Player(int id, Deck leftDeck, CardGameM game) {
+    public Player(int id, Deck deck, CardGameM game) {
         this.id = id;
-        this.leftDeck = leftDeck;
+        this.deck = deck;
         this.game = game;
     }
 
@@ -22,11 +21,11 @@ public class Player extends Thread {
     }
 
     private synchronized void drawCard() {
-        if (leftDeck.isEmpty()) {
+        if (deck.isEmpty()) {
             System.out.println("Player " + (id + 1) + " could not draw a card as the deck is empty.");
             return;
         }
-        Integer card = leftDeck.drawCard();
+        Integer card = deck.drawCard();
         if (card != null) {
             hand.add(card);
             System.out.println("Player " + (id + 1) + " draws a " + card);
@@ -46,7 +45,7 @@ public class Player extends Thread {
         // }
         int cardToDiscard = hand.remove(index);
         // rightDeck.addCard(cardToDiscard);
-        game.getNextPlayer(this).leftDeck.addCard(cardToDiscard);
+        game.getNextPlayer(this).deck.addCard(cardToDiscard);
         System.out.println("Player " + (id + 1) + " discards a " + cardToDiscard);
     }
 
@@ -58,12 +57,6 @@ public class Player extends Thread {
             }
         }
         return true;
-    }
-
-    public void exitGame() {
-        if (!game.isGameWon()) {
-            System.out.println("Player " + id + " is exiting the game.");
-        }
     }
 
     public void playTurn() {
@@ -130,12 +123,15 @@ public class Player extends Thread {
 
     @Override
     public void run() {
-        while (!game.isGameWon() && !Thread.interrupted()) {
+        while (game.winningPlayer.get()==0) {
             if (checkWinningHand()) {
-                game.declareWinner(id + 1);
-                break;
+                if (game.winningPlayer.compareAndSet(0, id+1)) {
+                    System.out.println("player " + (id+1) + " wins");
+                    game.notifyAllPlayers();
+                    break;
+                }
             }
-            else if (leftDeck.isEmpty()){
+            else if (deck.isEmpty()){
                 synchronized (this) {
                     try {
                         wait();
@@ -149,9 +145,9 @@ public class Player extends Thread {
                     game.getNextPlayer(this).notify();
                 }
             }
-        } synchronized (game.getNextPlayer(this)) {
+        } 
+        synchronized (game.getNextPlayer(this)) {
             game.getNextPlayer(this).notify();
         } 
-        exitGame();
     }
 }

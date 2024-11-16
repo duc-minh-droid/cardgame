@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Deck {
     private final int id;
-    private final Queue<Integer> cards = new LinkedList<>();
+    private final List<Integer> cards = new ArrayList();
     // private final List<Integer> cards = new ArrayList<>();
     private final Lock lock = new ReentrantLock();
     // List<Integer> cards = Collections.synchronizedList(c); 
@@ -37,7 +37,7 @@ public class Deck {
         // } finally{
         //     lock.unlock();
         // }
-        return cards.poll();
+        return cards.remove(0);
 
     }
 
