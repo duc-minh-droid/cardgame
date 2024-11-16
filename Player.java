@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Player extends Thread {
+public class Player extends Thread{
     private final int id;
     private final List<Integer> hand = new ArrayList<>();
     public final Deck deck;
     private final CardGameM game;
     private final File logFile;
+
 
     public Player(int id, Deck deck, CardGameM game) {
         this.id = id;
