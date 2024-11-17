@@ -83,9 +83,33 @@ public class Player extends Thread{
                     return;
                 }
     
-                drawCard();
-                discardCard(findDiscardIndex());
+                // Remove synchronized from these methods since we're already in a synchronized block
+                // Draw card operation
+                if (deck.isEmpty()) {
+                    logAction("draws no card as deck is empty");
+                    return;
+                }
+                Integer card = deck.drawCard();
+                if (card != null) {
+                    hand.add(card);
+                    logAction("draws a " + card + " from deck " + deck.getId());
+                } else {
+                    logAction("draws no card as deck is empty");
+                }
+    
+                // Discard card operation
+                int index = findDiscardIndex();
+                int cardToDiscard = hand.remove(index);
+                game.getNextPlayer(this).deck.addCard(cardToDiscard);
+                logAction("discards a " + cardToDiscard + " to deck " + game.getNextPlayer(this).deck.getId());
+    
                 logAction("current hand " + handToString());
+                
+                // Add verification
+                if (deck.size() != 4 || nextPlayerDeck.size() != 4) {
+                    logAction("ERROR: Inconsistent deck sizes - Current deck: " + deck.size() 
+                             + ", Next deck: " + nextPlayerDeck.size());
+                }
             }
         }
     }

@@ -23,18 +23,18 @@ public class Deck {
     public int size() {
         return cards.size();
     }
-    public synchronized void addCard(int card) {
+    public void addCard(int card) {
         // logDeckState();
         cards.add(card);
     }
 
-    public synchronized Integer drawCard() {
+    public Integer drawCard() {
         // logDeckState();
         return cards.remove(0);
 
     }
 
-    public synchronized boolean isEmpty(){
+    public boolean isEmpty(){
         return cards.isEmpty();
     }
 
@@ -42,7 +42,7 @@ public class Deck {
         return id;
     }
 
-    public synchronized void logDeckContents() {
+    public void logDeckContents() {
         File outputDir = new File("deckOutput");
         if (!outputDir.exists()) {
             outputDir.mkdir();
@@ -60,7 +60,7 @@ public class Deck {
         return cards.toString().replaceAll("[\\[\\],]", "").trim();
     }
 
-    private synchronized void logDeckState() {
+    private void logDeckState() {
         File outputDir = new File("deckOutput");
         if (!outputDir.exists()) {
             outputDir.mkdir();
