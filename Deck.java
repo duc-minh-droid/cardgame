@@ -3,16 +3,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Deck {
     private final int id;
-    private final List<Integer> cards = new ArrayList();
+    private final List<Card> cards = new ArrayList();
     // private final List<Integer> cards = new ArrayList<>();
     // List<Integer> cards = Collections.synchronizedList(c); 
     private Lock lock = new ReentrantLock();
@@ -24,7 +21,7 @@ public class Deck {
     public int size() {
         return cards.size();
     }
-    public void addCard(int card) {
+    public void addCard(Card card) {
         // logDeckState();
         try {
             lock.lock();
@@ -34,7 +31,7 @@ public class Deck {
         }
     }
 
-    public Integer drawCard() {
+    public Card drawCard() {
         // logDeckState();
         try {
             lock.lock();
@@ -68,7 +65,11 @@ public class Deck {
     }
 
     private String cardsToString() {
-        return cards.toString().replaceAll("[\\[\\],]", "").trim();
+        List<Integer> cardsValue = new ArrayList();
+        for(Card card : cards){
+            cardsValue.add(card.getValue());
+        }
+        return cardsValue.toString().replaceAll("[\\[\\],]", "").trim();
     }
 
     private void logDeckState() {

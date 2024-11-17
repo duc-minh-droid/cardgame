@@ -3,11 +3,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player extends Thread{
     private final int id;
-    private final List<Integer> hand = new ArrayList<>();
+    private final List<Card> hand = new ArrayList<>();
     public final Deck deck;
     private final CardGameM game;
     private final File logFile;
@@ -35,14 +34,14 @@ public class Player extends Thread{
         logAction("initial hand " + handToString());
     }
 
-    public void addCard(int card) {
+    public void addCard(Card card) {
         hand.add(card);
     }
 
     public Boolean checkWinningHand() {
-        int firstCardValue = hand.get(0);
+        int firstCardValue = hand.get(0).getValue();
         for (int i = 1; i < hand.size(); i++) {
-            if (hand.get(i) != firstCardValue) {
+            if (hand.get(i).getValue() != firstCardValue) {
                 return false; 
             }
         }
@@ -51,45 +50,62 @@ public class Player extends Thread{
 
     public synchronized void playTurn() {
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
-        Integer card = deck.drawCard();
-        if (card != null) {
-            hand.add(card);
-            logAction("draws a " + card + " from deck " + deck.getId());
+        Card drawedCard = deck.drawCard();
+        if (drawedCard != null) {
+            hand.add(drawedCard);
+            logAction("draws a " + drawedCard.getValue() + " from deck " + deck.getId());
         } else {
             logAction("draws no card as deck is empty");
         }
 
         int index = findDiscardIndex();
-        int cardToDiscard = hand.remove(index);
+        Card cardToDiscard = hand.remove(index);
         nextPlayerDeck.addCard(cardToDiscard);
-        logAction("discards a " + cardToDiscard + " to deck " + nextPlayerDeck.getId());
+        logAction("discards a " + cardToDiscard.getValue() + " to deck " + nextPlayerDeck.getId());
 
         logAction("current hand " + handToString());
     }
 
     private int findDiscardIndex() {
         Map<Integer, Integer> frequencyMap = new HashMap<>();
-        for (int card : hand) {
-            frequencyMap.put(card, frequencyMap.getOrDefault(card, 0) + 1);
+        for (Card card : hand) {
+            frequencyMap.put(card.getValue(), frequencyMap.getOrDefault(card.getValue(), 0) + 1);
         }
 
-        int preferredCard = hand.get(0);
-        int maxFrequency = 0;
+        // Card preferredCard = hand.get(0);
+        // int maxFrequency = 0;
 
+        // for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
+        //     if (entry.getValue() > maxFrequency) {
+        //         preferredCard = entry.getKey();
+        //         maxFrequency = entry.getValue();
+        //     }
+        // }
+
+        int preferredValue = hand.get(0).getValue();
+        int maxFrequency = 0;
         for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
             if (entry.getValue() > maxFrequency) {
-                preferredCard = entry.getKey();
+                preferredValue = entry.getKey();
                 maxFrequency = entry.getValue();
             }
         }
-
+        
         int discardIndex = -1;
         for (int i = 0; i < hand.size(); i++) {
-            if (hand.get(i) != preferredCard) {
+            if (hand.get(i).getValue() != preferredValue) {
                 discardIndex = i;
                 break;
+                
             }
         }
+
+        // for (int i = 0; i < hand.size(); i++) {
+        //     if (hand.get(i) != preferredCard) {
+        //         discardIndex = i;
+        //         break;
+        //     }
+        // }
 
         if (discardIndex == -1) {
             discardIndex = 0;
@@ -154,6 +170,11 @@ public class Player extends Thread{
     }
 
     private String handToString() {
-        return hand.toString().replaceAll("[\\[\\],]", "").trim();
+        List<Integer> handValue = new ArrayList();
+        for(Card card : hand){
+            handValue.add(card.getValue());
+        }
+
+        return handValue.toString().replaceAll("[\\[\\],]", "").trim();
     }
 }

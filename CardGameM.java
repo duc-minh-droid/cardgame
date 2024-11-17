@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CardGameM {
     List<Player> players;        
     List<Deck> decks;
-    List<Integer> pack;
+    List<Card> pack;
     public AtomicInteger winningPlayer = new AtomicInteger(0);
 
     public CardGameM() {
