@@ -1,6 +1,7 @@
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,22 +31,22 @@ public class TestPlayer {
 
     @Test
     public void testCheckWinningHand() {
-        player.addCard(new Card(5));
-        player.addCard(new Card(5));
-        player.addCard(new Card(5));
-        player.addCard(new Card(5));
+        player.addCard(new Card(1));
+        player.addCard(new Card(1));
+        player.addCard(new Card(1));
+        player.addCard(new Card(1));
 
         // Verify that the player's hand is a winning hand
         assertTrue(player.checkWinningHand());
-
-        player.addCard(new Card(7));
+        
+        player.addCard(new Card(2));
         // Verify that the player's hand is no longer a winning hand
         assertFalse(player.checkWinningHand());
     }
 
     @Test
     public void testPlayTurnDrawCard() {
-        Card cardInDeck = new Card(9);
+        Card cardInDeck = new Card(4);
         deck.addCard(cardInDeck);
 
         Deck nextPlayerDeck = new Deck(2);
@@ -71,10 +72,10 @@ public class TestPlayer {
         Deck nextPlayerDeck = new Deck(2);
         when(game.getNextPlayer(player)).thenReturn(new Player(2, nextPlayerDeck, game));
 
-        player.addCard(new Card(5));
-        player.addCard(new Card(5));
-        player.addCard(new Card(7));
-        player.addCard(new Card(5));
+        player.addCard(new Card(4));
+        player.addCard(new Card(4));
+        player.addCard(new Card(3));
+        player.addCard(new Card(4));
 
         player.playTurn();
 
