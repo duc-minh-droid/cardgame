@@ -24,9 +24,8 @@ public class Player extends Thread{
         }
         logFile = new File(outputDir, "player" + (id + 1) + "_output.txt");
 
-        // Clear existing content in the log file and log initial hand
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
-            writer.write(""); // Clear file
+            writer.write("");
         } catch (IOException e) {
             System.err.println("Error clearing log file for Player " + (id + 1) + ": " + e.getMessage());
         }
@@ -40,31 +39,11 @@ public class Player extends Thread{
         hand.add(card);
     }
 
-    private synchronized void drawCard() {
-        if (deck.isEmpty()) {
-            logAction("draws no card as deck is empty");
-            return;
-        }
-        Integer card = deck.drawCard();
-        if (card != null) {
-            hand.add(card);
-            logAction("draws a " + card + " from deck " + deck.getId());
-        } else {
-            logAction("draws no card as deck is empty");
-        }
-    }
-
-    private synchronized void discardCard(int index) {
-        int cardToDiscard = hand.remove(index);
-        game.getNextPlayer(this).deck.addCard(cardToDiscard);
-        logAction("discards a " + cardToDiscard + " to deck " + game.getNextPlayer(this).deck.getId());
-    }
-
     public Boolean checkWinningHand() {
         int firstCardValue = hand.get(0);
         for (int i = 1; i < hand.size(); i++) {
             if (hand.get(i) != firstCardValue) {
-                return false; // Found a card that is different
+                return false; 
             }
         }
         return true;
@@ -72,23 +51,6 @@ public class Player extends Thread{
 
     public synchronized void playTurn() {
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
-    
-        // // Ensure decks are locked in a consistent order to avoid deadlocks
-        // Deck firstLock = deck.getId() < nextPlayerDeck.getId() ? deck : nextPlayerDeck;
-        // Deck secondLock = deck.getId() < nextPlayerDeck.getId() ? nextPlayerDeck : deck;
-    
-        // synchronized (firstLock) {
-        //     synchronized (secondLock) {
-        //         if (Thread.interrupted() || game.winningPlayer.get() != 0) {
-        //             return;
-        //         }
-    
-        // Remove synchronized from these methods since we're already in a synchronized block
-        // Draw card operation
-        if (deck.isEmpty()) {
-            logAction("draws no card as deck is empty");
-            return;
-        }
         Integer card = deck.drawCard();
         if (card != null) {
             hand.add(card);
@@ -97,17 +59,13 @@ public class Player extends Thread{
             logAction("draws no card as deck is empty");
         }
 
-        // Discard card operation
         int index = findDiscardIndex();
         int cardToDiscard = hand.remove(index);
-        game.getNextPlayer(this).deck.addCard(cardToDiscard);
-        logAction("discards a " + cardToDiscard + " to deck " + game.getNextPlayer(this).deck.getId());
+        nextPlayerDeck.addCard(cardToDiscard);
+        logAction("discards a " + cardToDiscard + " to deck " + nextPlayerDeck.getId());
 
         logAction("current hand " + handToString());
     }
-    //     }
-    // }
-    
 
     private int findDiscardIndex() {
         Map<Integer, Integer> frequencyMap = new HashMap<>();
@@ -144,38 +102,26 @@ public class Player extends Thread{
     public void run() {
         try {
             while (game.winningPlayer.get() == 0) {
-                if (Thread.interrupted()) {
-                    logAction("Thread was interrupted, ending game.");
-                    break;
-                }
 
                 if (deck.isEmpty()) {
                     synchronized (this) {
                         try {
-                            logAction("waiting for the deck to be refilled.");
                             wait();
                         } catch (InterruptedException e) {
-                            logAction("Interrupted while waiting for deck refill.");
                             break;
                         }
                     }
                 } else {
                     playTurn();
-
-                    // Check if the current player has won
                     if (checkWinningHand()) {
                         if (game.winningPlayer.compareAndSet(0, id + 1)) {
                             logAction("wins");
-                            // game.notifyAllPlayers();
                             break;
                         }
                     }
                 }
             }
-        } catch (RuntimeException e) {
-            logAction("Game interrupted due to another player winning.");
         } finally {
-            // Log final state for all players
             if (game.winningPlayer.get() == id + 1) {
                 logAction("exits");
                 logAction("final hand: " + handToString());
