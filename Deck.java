@@ -15,6 +15,7 @@ public class Deck {
     private final List<Integer> cards = new ArrayList();
     // private final List<Integer> cards = new ArrayList<>();
     // List<Integer> cards = Collections.synchronizedList(c); 
+    private Lock lock = new ReentrantLock();
 
     public Deck(int id) {
         this.id = id;
@@ -25,12 +26,22 @@ public class Deck {
     }
     public void addCard(int card) {
         // logDeckState();
-        cards.add(card);
+        try {
+            lock.lock();
+            cards.add(card);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public Integer drawCard() {
         // logDeckState();
-        return cards.remove(0);
+        try {
+            lock.lock();
+            return cards.remove(0);
+        } finally {
+            lock.unlock();
+        }
 
     }
 

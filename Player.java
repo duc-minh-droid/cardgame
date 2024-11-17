@@ -70,49 +70,43 @@ public class Player extends Thread{
         return true;
     }
 
-    public void playTurn() {
+    public synchronized void playTurn() {
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
     
-        // Ensure decks are locked in a consistent order to avoid deadlocks
-        Deck firstLock = deck.getId() < nextPlayerDeck.getId() ? deck : nextPlayerDeck;
-        Deck secondLock = deck.getId() < nextPlayerDeck.getId() ? nextPlayerDeck : deck;
+        // // Ensure decks are locked in a consistent order to avoid deadlocks
+        // Deck firstLock = deck.getId() < nextPlayerDeck.getId() ? deck : nextPlayerDeck;
+        // Deck secondLock = deck.getId() < nextPlayerDeck.getId() ? nextPlayerDeck : deck;
     
-        synchronized (firstLock) {
-            synchronized (secondLock) {
-                if (Thread.interrupted() || game.winningPlayer.get() != 0) {
-                    return;
-                }
+        // synchronized (firstLock) {
+        //     synchronized (secondLock) {
+        //         if (Thread.interrupted() || game.winningPlayer.get() != 0) {
+        //             return;
+        //         }
     
-                // Remove synchronized from these methods since we're already in a synchronized block
-                // Draw card operation
-                if (deck.isEmpty()) {
-                    logAction("draws no card as deck is empty");
-                    return;
-                }
-                Integer card = deck.drawCard();
-                if (card != null) {
-                    hand.add(card);
-                    logAction("draws a " + card + " from deck " + deck.getId());
-                } else {
-                    logAction("draws no card as deck is empty");
-                }
-    
-                // Discard card operation
-                int index = findDiscardIndex();
-                int cardToDiscard = hand.remove(index);
-                game.getNextPlayer(this).deck.addCard(cardToDiscard);
-                logAction("discards a " + cardToDiscard + " to deck " + game.getNextPlayer(this).deck.getId());
-    
-                logAction("current hand " + handToString());
-                
-                // Add verification
-                if (deck.size() != 4 || nextPlayerDeck.size() != 4) {
-                    logAction("ERROR: Inconsistent deck sizes - Current deck: " + deck.size() 
-                             + ", Next deck: " + nextPlayerDeck.size());
-                }
-            }
+        // Remove synchronized from these methods since we're already in a synchronized block
+        // Draw card operation
+        if (deck.isEmpty()) {
+            logAction("draws no card as deck is empty");
+            return;
         }
+        Integer card = deck.drawCard();
+        if (card != null) {
+            hand.add(card);
+            logAction("draws a " + card + " from deck " + deck.getId());
+        } else {
+            logAction("draws no card as deck is empty");
+        }
+
+        // Discard card operation
+        int index = findDiscardIndex();
+        int cardToDiscard = hand.remove(index);
+        game.getNextPlayer(this).deck.addCard(cardToDiscard);
+        logAction("discards a " + cardToDiscard + " to deck " + game.getNextPlayer(this).deck.getId());
+
+        logAction("current hand " + handToString());
     }
+    //     }
+    // }
     
 
     private int findDiscardIndex() {
@@ -172,19 +166,17 @@ public class Player extends Thread{
                     if (checkWinningHand()) {
                         if (game.winningPlayer.compareAndSet(0, id + 1)) {
                             logAction("wins");
-                            game.notifyAllPlayers();
+                            // game.notifyAllPlayers();
                             break;
                         }
                     }
                 }
-                logEndOfRound();
             }
         } catch (RuntimeException e) {
             logAction("Game interrupted due to another player winning.");
         } finally {
             // Log final state for all players
             if (game.winningPlayer.get() == id + 1) {
-                logAction("wins");
                 logAction("exits");
                 logAction("final hand: " + handToString());
             } else {
@@ -204,11 +196,6 @@ public class Player extends Thread{
 
     private synchronized void logAction(String message) {
         logAction(message, id + 1); // Default to current player
-    }
-
-    private void logEndOfRound() {
-        int deckSize = deck.size(); // Assuming game has a method to get deck size by ID
-        logAction("end of round: deck size " + deckSize + ", player hand size " + hand.size());
     }
     
     private synchronized void logAction(String message, int informerId) {

@@ -13,7 +13,7 @@ public class CardGameM {
         decks = new ArrayList<>();
     }
 
-    public void startGame() {
+    public void initializeGame() {
         int n = 4;
         pack = HelperFunctions.readPack("four.txt", n);
         for (int i = 0; i < n; i++) {
@@ -55,16 +55,25 @@ public class CardGameM {
         }
     }
 
-
-    public static void main(String[] args) {
-        CardGameM game = new CardGameM();
-
-        game.startGame();
-
-        for (Player p : game.players) {
-            (new Thread(p)).start();
+    public void startGame() {
+        for (Player p : players) {
+            p.start();
         }
-        game.logDecks();
-        System.out.println("Game has ended.");
+    }
+
+    public void endGame() throws Exception {
+        for (Player p : players) {
+            p.join();
+        }
+        logDecks();
+        System.out.println("Player " + (winningPlayer.get()) + " wins!");
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        CardGameM game = new CardGameM();
+        game.initializeGame();
+        game.startGame();
+        game.endGame();
     }
 }
