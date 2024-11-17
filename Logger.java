@@ -16,7 +16,6 @@ public class Logger {
         }
         logFile = new File(outputDir, fileName);
 
-        // Clear existing content
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
             writer.write(""); // Clear file
         } catch (IOException e) {
