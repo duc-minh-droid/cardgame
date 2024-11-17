@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Player extends Thread{
     private final int id;
-    private final List<Card> hand = new ArrayList<>();
+    public final List<Card> hand = new ArrayList<>();
     public final Deck deck;
     private final CardGameM game;
     private final Logger logger;

@@ -1,0 +1,3 @@
+player 0 has informed player 3 that player 0 has won
+exits
+hand: 
