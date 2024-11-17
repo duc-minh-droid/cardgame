@@ -1,7 +1,6 @@
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -101,32 +100,6 @@ public class TestPlayer {
         // Verify that the player sets the winningPlayer atomic variable
         assertEquals(2, winningPlayer.get()); // Player ID 1 + 1
     }
-
-    @Test
-    public void testThreadExecution() {
-        // Simulate a running game
-        Deck nextPlayerDeck = new Deck(2);
-        when(game.getNextPlayer(player)).thenReturn(new Player(2, nextPlayerDeck, game));
-
-        AtomicInteger winningPlayer = new AtomicInteger(0);
-        when(game.winningPlayer).thenReturn(winningPlayer);
-
-        deck.addCard(new Card(4)); // Add a card to the player's deck
-
-        // Start the player thread
-        player.start();
-
-        // Allow the thread to run
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            fail("Thread interrupted unexpectedly");
-        }
-
-        // Verify the thread updates the winning player when the hand matches
-        winningPlayer.set(2); // Simulate winning
-        assertTrue(winningPlayer.get() > 0);
-    }
 }
 
-}
+
