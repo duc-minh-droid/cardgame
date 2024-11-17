@@ -1,4 +1,3 @@
-public class TestPalyer {
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -7,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PlayerTest {
+public class TestPlayer {
 
     private Player player;
     private Deck deck;
