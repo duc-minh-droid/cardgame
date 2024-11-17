@@ -9,34 +9,19 @@ public class Player extends Thread{
     private final List<Card> hand = new ArrayList<>();
     public final Deck deck;
     private final CardGameM game;
-    private final File logFile;
+    private final Logger logger;
 
 
     public Player(int id, Deck deck, CardGameM game) {
         this.id = id;
         this.deck = deck;
         this.game = game;
-
-        File outputDir = new File("playerOutput");
-        if (!outputDir.exists()) {
-            outputDir.mkdir();
-        }
-        logFile = new File(outputDir, "player" + (id + 1) + "_output.txt");
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
-            writer.write("");
-        } catch (IOException e) {
-            System.err.println("Error clearing log file for Player " + (id + 1) + ": " + e.getMessage());
-        }
+        this.logger = new Logger("gameOutput", "player" + (id + 1) + "_output.txt");
     }
 
     public void logInitialHand() {
-        logAction("initial hand " + handToString());
+        logger.log("initial hand " + logger.cardsToString(hand));
     }
-
-    // public void addCard(Card card) {
-    //     hand.add(card);
-    // }
 
     public synchronized void addCard(Card card) {
         hand.add(card);
@@ -51,41 +36,31 @@ public class Player extends Thread{
         }
         return true;
     }
-
+    
     public synchronized void playTurn() {
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
         Card drawedCard = deck.drawCard();
         if (drawedCard != null) {
             hand.add(drawedCard);
-            logAction("draws a " + drawedCard.getValue() + " from deck " + deck.getId());
+            logger.log("draws a " + drawedCard.getValue() + " from deck " + deck.getId());
         } else {
-            logAction("draws no card as deck is empty");
+            logger.log("draws no card as deck is empty");
         }
-
+    
         int index = findDiscardIndex();
         Card cardToDiscard = hand.remove(index);
         nextPlayerDeck.addCard(cardToDiscard);
-        logAction("discards a " + cardToDiscard.getValue() + " to deck " + nextPlayerDeck.getId());
-
-        logAction("current hand " + handToString());
+        logger.log("discards a " + cardToDiscard.getValue() + " to deck " + nextPlayerDeck.getId());
+    
+        logger.log("current hand " + logger.cardsToString(hand));
     }
+    
 
     private int findDiscardIndex() {
         Map<Integer, Integer> frequencyMap = new HashMap<>();
         for (Card card : hand) {
             frequencyMap.put(card.getValue(), frequencyMap.getOrDefault(card.getValue(), 0) + 1);
         }
-
-        // Card preferredCard = hand.get(0);
-        // int maxFrequency = 0;
-
-        // for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
-        //     if (entry.getValue() > maxFrequency) {
-        //         preferredCard = entry.getKey();
-        //         maxFrequency = entry.getValue();
-        //     }
-        // }
-
         int preferredValue = hand.get(0).getValue();
         int maxFrequency = 0;
         for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
@@ -94,27 +69,16 @@ public class Player extends Thread{
                 maxFrequency = entry.getValue();
             }
         }
-        
         int discardIndex = -1;
         for (int i = 0; i < hand.size(); i++) {
             if (hand.get(i).getValue() != preferredValue) {
                 discardIndex = i;
                 break;
-                
             }
         }
-
-        // for (int i = 0; i < hand.size(); i++) {
-        //     if (hand.get(i) != preferredCard) {
-        //         discardIndex = i;
-        //         break;
-        //     }
-        // }
-
         if (discardIndex == -1) {
             discardIndex = 0;
         }
-
         return discardIndex;
     }
 
@@ -135,7 +99,7 @@ public class Player extends Thread{
                     playTurn();
                     if (checkWinningHand()) {
                         if (game.winningPlayer.compareAndSet(0, id + 1)) {
-                            logAction("wins");
+                            logger.log("wins");
                             game.notifyAllPlayers();
                             break;
                         }
@@ -144,13 +108,13 @@ public class Player extends Thread{
             }
         } finally {
             if (game.winningPlayer.get() == id + 1) {
-                logAction("exits");
-                logAction("final hand: " + handToString());
+                logger.log("exits");
+                logger.log("final hand: " + logger.cardsToString(hand));
             } else {
                 int winnerId = game.winningPlayer.get();
-                logAction("has informed player " + (id + 1) + " that player " + winnerId + " has won", winnerId);
-                logAction("exits");
-                logAction("hand: " + handToString());
+                logger.log("has informed player " + (id + 1) + " that player " + winnerId + " has won", winnerId);
+                logger.log("exits");
+                logger.log("hand: " + logger.cardsToString(hand));
             }
 
             // Final notify to prevent deadlock
@@ -160,26 +124,4 @@ public class Player extends Thread{
         }
     }
 
-
-    private synchronized void logAction(String message) {
-        logAction(message, id + 1); // Default to current player
-    }
-    
-    private synchronized void logAction(String message, int informerId) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
-            writer.write("player " + informerId + " " + message);
-            writer.newLine();
-        } catch (IOException e) {
-            System.err.println("Error writing log for Player " + (id + 1) + ": " + e.getMessage());
-        }
-    }
-
-    private String handToString() {
-        List<Integer> handValue = new ArrayList();
-        for(Card card : hand){
-            handValue.add(card.getValue());
-        }
-
-        return handValue.toString().replaceAll("[\\[\\],]", "").trim();
-    }
 }
