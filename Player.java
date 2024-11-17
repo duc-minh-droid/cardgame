@@ -34,7 +34,11 @@ public class Player extends Thread{
         logAction("initial hand " + handToString());
     }
 
-    public void addCard(Card card) {
+    // public void addCard(Card card) {
+    //     hand.add(card);
+    // }
+
+    public synchronized void addCard(Card card) {
         hand.add(card);
     }
 
@@ -132,6 +136,7 @@ public class Player extends Thread{
                     if (checkWinningHand()) {
                         if (game.winningPlayer.compareAndSet(0, id + 1)) {
                             logAction("wins");
+                            game.notifyAllPlayers();
                             break;
                         }
                     }
