@@ -14,26 +14,24 @@ public class CardGameM {
         decks = new ArrayList<>();
     }
 
-    public static int getNumberOfPlayers(){
+    public static int getNumberOfPlayers() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter the number of players: ");
-        int noOfPlayer = 0;
-        while (noOfPlayer <= 1) { 
+        while (true) { 
             try {
                 String input = scanner.nextLine();
                 int n = Integer.parseInt(input);
-                if(n >= 2){
-                    noOfPlayer = n;
-                    break;
-                } else{
-                    System.out.println("The game required at least 2 players");
+                if (n >= 2) {
+                    return n; 
+                } else {
+                    System.out.println("The game requires at least 2 players.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
+                System.out.println("Invalid input. Please enter a valid integer.");
             }
         }
-        return noOfPlayer;
     }
+    
     public void initializeGame() {
         int n = getNumberOfPlayers();
         pack = HelperFunctions.readPack("four.txt", n);
