@@ -1,3 +1,0 @@
-draws a 3 from deck 0
-discards a 1 to deck 1
-current hand 2 3 4 3
