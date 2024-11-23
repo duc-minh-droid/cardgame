@@ -1,2 +1,2 @@
 *.class
-gameOutput
+gameOutput/*.txt
