@@ -16,11 +16,11 @@ public class CardGameM {
     public void initializeGame() {
         int n = 4;
         pack = HelperFunctions.readPack("four.txt", n);
-        for (int i = 0; i < n; i++) {
-            decks.add(new Deck(i + 1));
+        for (int i = 1; i <= n; i++) {
+            decks.add(new Deck(i));
         }
-        for (int i = 0; i < n; i++) {
-            players.add(new Player(i, decks.get(i), this));
+        for (int i = 1; i <= n; i++) {
+            players.add(new Player(i, decks.get(i-1), this));
         }
         HelperFunctions.distributeCards(players, decks, pack);
         for (Player player : players) {

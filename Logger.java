@@ -8,6 +8,7 @@ import java.util.List;
 public class Logger {
 
     private final File logFile;
+    private final BufferedWriter writer;
 
     public Logger(String directory, String fileName) {
         File outputDir = new File(directory);
@@ -15,18 +16,20 @@ public class Logger {
             outputDir.mkdir();
         }
         logFile = new File(outputDir, fileName);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
-            writer.write(""); // Clear file
+        BufferedWriter tempWriter = null;
+        try {
+            tempWriter = new BufferedWriter(new FileWriter(logFile, true)); // Append mode
         } catch (IOException e) {
-            System.err.println("Error clearing log file for " + fileName + ": " + e.getMessage());
+            e.printStackTrace();
         }
+        writer = tempWriter;
     }
 
     public void log(String message) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
+        try {
             writer.write(message);
             writer.newLine();
+            writer.flush(); 
         } catch (IOException e) {
             System.err.println("Error writing log for " + logFile.getName() + ": " + e.getMessage());
         }
@@ -37,8 +40,8 @@ public class Logger {
     }
 
     public String cardsToString(List<Card> cards) {
-        List<Integer> cardsValue = new ArrayList();
-        for(Card card : cards){
+        List<Integer> cardsValue = new ArrayList<>();
+        for (Card card : cards) {
             cardsValue.add(card.getValue());
         }
         return cardsValue.toString().replaceAll("[\\[\\],]", "").trim();
@@ -49,11 +52,20 @@ public class Logger {
         if (!outputDir.exists()) {
             outputDir.mkdir();
         }
-        File logFile = new File(outputDir, "deck" + id + "_output.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
-            writer.write("deck" + id + " contents: " + cardsToString(cards));
+        File deckFile = new File(outputDir, "deck" + id + "_output.txt");
+        try (BufferedWriter deckWriter = new BufferedWriter(new FileWriter(deckFile))) {
+            deckWriter.write("deck" + id + " contents: " + cardsToString(cards));
         } catch (IOException e) {
             System.err.println("Error writing log for Deck " + id + ": " + e.getMessage());
         }
     }
+
+    public void close() {
+        try {
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Error closing log file for " + logFile.getName() + ": " + e.getMessage());
+        }
+    }
 }
+
