@@ -30,7 +30,7 @@ public class HelperFunctionsTest{
         }
     }
 
-    }
+    
     @Test 
     public void testReadPack(){
         // Read a valid pack file with 8*n cards (for n=4 players)
