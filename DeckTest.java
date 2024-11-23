@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
-public class TestDeck{
+public class DeckTest{
     private Deck deck;
 
 
