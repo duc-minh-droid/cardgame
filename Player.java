@@ -8,7 +8,7 @@ public class Player extends Thread{
     private final int id;
     public final List<Card> hand = new ArrayList<>();
     public final Deck deck;
-    private final CardGameM game;
+    public final CardGameM game;
     private final Logger logger;
 
 

@@ -70,15 +70,19 @@ public class PlayerTest {
     @Test
     public void testCardDrawAndDiscard() {
         // Setup decks
-        Deck leftDeck = new Deck(1);
-        Deck rightDeck = new Deck(2);
+        Deck deck1 = new Deck(0);
+        Deck deck2 = new Deck(1);
 
         // Populate left deck with some cards
-        leftDeck.addCard(new Card(3));
-        leftDeck.addCard(new Card(5));
+        deck1.addCard(new Card(3));
+        deck1.addCard(new Card(5));
+        CardGameM c = new CardGameM();
 
         // Create player and assign leftDeck
-        Player player = new Player(1, leftDeck, new CardGameM());
+        Player player = new Player(0, deck1, c);
+        Player player2 = new Player(1, deck2, c);
+        c.players.add(player);
+        c.players.add(player2);
         player.addCard(new Card(1));
         player.addCard(new Card(2));
         player.addCard(new Card(3));
@@ -88,8 +92,8 @@ public class PlayerTest {
         player.playTurn();
 
         // Validate card movement
-        assertEquals(1, leftDeck.size()); // One card removed from left deck
-        assertEquals(1, rightDeck.size()); // One card added to right deck
+        assertEquals(1, deck1.size()); // One card removed from left deck
+        assertEquals(1, deck2.size()); // One card added to right deck
         assertEquals(4, player.hand.size()); // Player's hand should remain at 4 cards
     }
 
