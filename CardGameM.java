@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -22,7 +23,7 @@ public class CardGameM {
                 String input = scanner.nextLine();
                 int n = Integer.parseInt(input);
                 if (n >= 2) {
-                    return n; 
+                    return n;
                 } else {
                     System.out.println("The game requires at least 2 players.");
                 }
@@ -32,9 +33,24 @@ public class CardGameM {
         }
     }
     
+    public static String getPackLocation(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter location of pack to load ");
+        while (true) { 
+            String filePath = scanner.nextLine();
+            File file = new File(filePath);
+            if (file.exists()) {
+                return filePath; 
+            } else {
+                System.out.println("Invalid file path.");
+            }
+        }
+    }
+    
     public void initializeGame() {
         int n = getNumberOfPlayers();
-        pack = HelperFunctions.readPack("four.txt", n);
+        String filePath = getPackLocation();
+        pack = HelperFunctions.readPack(filePath, n);
         for (int i = 1; i <= n; i++) {
             decks.add(new Deck(i));
         }
