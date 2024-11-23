@@ -47,7 +47,7 @@ public class Deck {
     }
 
     public void logDeckContents() {
-        Logger logger = new Logger("gameOutput", "player" + (id + 1) + "_output.txt");
+        Logger logger = new Logger("gameOutput", "player" + id + "_output.txt");
         logger.logDeckContents(id, cards);
     }
 }

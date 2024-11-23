@@ -16,9 +16,12 @@ public class Player extends Thread{
         this.id = id;
         this.deck = deck;
         this.game = game;
-        this.logger = new Logger("gameOutput", "player" + (id + 1) + "_output.txt");
+        this.logger = new Logger("gameOutput", "player" + id + "_output.txt");
     }
 
+    public long getId() {
+        return this.id;
+    }
     public void logInitialHand() {
         logger.log("initial hand " + logger.cardsToString(hand));
     }
@@ -42,15 +45,15 @@ public class Player extends Thread{
         Card drawedCard = deck.drawCard();
         if (drawedCard != null) {
             hand.add(drawedCard);
-            logger.log("draws a " + drawedCard.getValue() + " from deck " + deck.getId());
+            logger.log("draws a " + drawedCard.getValue() + " from deck " + deck.getId(), id);
         } else {
-            logger.log("draws no card as deck is empty");
+            logger.log("draws no card as deck is empty", id);
         }
     
         int index = findDiscardIndex();
         Card cardToDiscard = hand.remove(index);
         nextPlayerDeck.addCard(cardToDiscard);
-        logger.log("discards a " + cardToDiscard.getValue() + " to deck " + nextPlayerDeck.getId());
+        logger.log("discards a " + cardToDiscard.getValue() + " to deck " + nextPlayerDeck.getId(), id);
     
         logger.log("current hand " + logger.cardsToString(hand));
     }
@@ -98,8 +101,8 @@ public class Player extends Thread{
                 } else {
                     playTurn();
                     if (checkWinningHand()) {
-                        if (game.winningPlayer.compareAndSet(0, id + 1)) {
-                            logger.log("wins");
+                        if (game.winningPlayer.compareAndSet(0, id)) {
+                            logger.log("wins", id);
                             game.notifyAllPlayers();
                             break;
                         }
@@ -107,12 +110,12 @@ public class Player extends Thread{
                 }
             }
         } finally {
-            if (game.winningPlayer.get() == id + 1) {
-                logger.log("exits");
+            if (game.winningPlayer.get() == id) {
+                logger.log("exits", id);
                 logger.log("final hand: " + logger.cardsToString(hand));
             } else {
                 int winnerId = game.winningPlayer.get();
-                logger.log("has informed player " + (id + 1) + " that player " + winnerId + " has won", winnerId);
+                logger.log("has informed player " + id + " that player " + winnerId + " has won", winnerId);
                 logger.log("exits");
                 logger.log("hand: " + logger.cardsToString(hand));
             }
