@@ -23,7 +23,7 @@ public class Player extends Thread{
         return this.id;
     }
     public void logInitialHand() {
-        logger.log("initial hand " + logger.cardsToString(hand));
+        logger.log("initial hand " + logger.cardsToString(hand), id);
     }
 
     public synchronized void addCard(Card card) {
@@ -112,7 +112,7 @@ public class Player extends Thread{
         } finally {
             if (game.winningPlayer.get() == id) {
                 logger.log("exits", id);
-                logger.log("final hand: " + logger.cardsToString(hand));
+                logger.log("final hand: " + logger.cardsToString(hand), id);
             } else {
                 int winnerId = game.winningPlayer.get();
                 logger.log("has informed player " + id + " that player " + winnerId + " has won", winnerId);
