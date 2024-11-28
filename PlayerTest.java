@@ -9,7 +9,7 @@ public class PlayerTest {
     @Test
     public void testImmediateWin() {
         // Set up the game
-        CardGameM game = new CardGameM();
+        CardGame game = new CardGame();
         Deck deck = new Deck(1);
         Player player = new Player(1, deck, game);
 
@@ -30,7 +30,7 @@ public class PlayerTest {
     @Test
     public void testMidGameWin() throws InterruptedException {
         // Set up the game
-        CardGameM game = new CardGameM();
+        CardGame game = new CardGame();
         Deck playerDeck = new Deck(1);
         Deck nextPlayerDeck = new Deck(2);
 
@@ -77,7 +77,7 @@ public class PlayerTest {
         // Populate left deck with some cards
         deck1.addCard(new Card(3));
         deck1.addCard(new Card(5));
-        CardGameM c = new CardGameM();
+        CardGame c = new CardGame();
 
         // Create player and assign leftDeck
         Player player = new Player(0, deck1, c);

@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CardGameM {
+public class CardGame {
     List<Player> players;        
     List<Deck> decks;
     List<Card> pack;
     public AtomicInteger winningPlayer = new AtomicInteger(0);
 
-    public CardGameM() {
+    public CardGame() {
         players = new ArrayList<>();
         decks = new ArrayList<>();
     }
@@ -104,7 +104,7 @@ public class CardGameM {
 
 
     public static void main(String[] args) throws Exception {
-        CardGameM game = new CardGameM();
+        CardGame game = new CardGame();
         game.initializeGame(getNumberOfPlayers(), getPackLocation());
         game.startGame();
         game.endGame();

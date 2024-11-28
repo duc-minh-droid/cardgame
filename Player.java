@@ -1,18 +1,14 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 public class Player extends Thread{
     private final int id;
     public final List<Card> hand = new ArrayList<>();
     public final Deck deck;
-    public final CardGameM game;
+    public final CardGame game;
     private final Logger logger;
 
 
-    public Player(int id, Deck deck, CardGameM game) {
+    public Player(int id, Deck deck, CardGame game) {
         this.id = id;
         this.deck = deck;
         this.game = game;
