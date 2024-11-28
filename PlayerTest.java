@@ -95,7 +95,7 @@ public class PlayerTest {
         // Validate card movement
         assertEquals(1, deck1.size()); // One card removed from left deck
         assertEquals(1, deck2.size()); // One card added to right deck
-        assertEquals(4, player.hand.size()); // Player's hand should remain at 4 cards
+        assertEquals(4, player.getHand().size()); // Player's hand should remain at 4 cards
     }
 
 }

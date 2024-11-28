@@ -71,7 +71,7 @@ public class HelperFunctionsTest{
 
         // Test if each player and ech deck has 4 cards 
         for(Player player : players){
-            assertEquals(4, player.hand.size());
+            assertEquals(4, player.getHand().size());
         }
         for(Deck deck : decks){
             assertEquals(4, deck.size());

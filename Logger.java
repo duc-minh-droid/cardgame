@@ -8,21 +8,24 @@ import java.util.List;
 public class Logger {
 
     private final File logFile;
-    private final BufferedWriter writer;
+    private BufferedWriter writer;
 
-    public Logger(String directory, String fileName) {
+    public Logger(String directory, String fileName, boolean clearFile) {
         File outputDir = new File(directory);
         if (!outputDir.exists()) {
             outputDir.mkdir();
         }
         logFile = new File(outputDir, fileName);
-        BufferedWriter tempWriter = null;
         try {
-            tempWriter = new BufferedWriter(new FileWriter(logFile, true)); // Append mode
+            if (clearFile) {
+                BufferedWriter clearWriter = new BufferedWriter(new FileWriter(logFile, false));
+                clearWriter.write(""); // Clear file content
+                clearWriter.close();
+            }
+            writer = new BufferedWriter(new FileWriter(logFile, true)); // Append mode
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writer = tempWriter;
     }
 
     public void log(String message) {

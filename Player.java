@@ -2,17 +2,23 @@ import java.util.*;
 
 public class Player extends Thread{
     private final int id;
-    public final List<Card> hand = new ArrayList<>();
-    public final Deck deck;
-    public final CardGame game;
+    private final List<Card> hand = new ArrayList<>();
+    private final Deck deck;
+    private final CardGame game;
     private final Logger logger;
-
 
     public Player(int id, Deck deck, CardGame game) {
         this.id = id;
         this.deck = deck;
         this.game = game;
-        this.logger = new Logger("gameOutput", "player" + id + "_output.txt");
+        this.logger = new Logger("gameOutput", "player" + id + "_output.txt",true);
+    }
+
+    public List<Card> getHand() {
+        return hand;
+    }
+    public Deck getDeck() {
+        return deck;
     }
 
     public long getId() {
@@ -22,7 +28,7 @@ public class Player extends Thread{
         logger.log("initial hand " + logger.cardsToString(hand), id);
     }
 
-    public synchronized void addCard(Card card) {
+    public void addCard(Card card) {
         hand.add(card);
     }
 
@@ -36,7 +42,7 @@ public class Player extends Thread{
         return true;
     }
     
-    public synchronized void playTurn() {
+    public void playTurn() {
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
         Card drawedCard = deck.drawCard();
         if (drawedCard != null) {

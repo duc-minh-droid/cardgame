@@ -25,7 +25,7 @@ public class LoggerTest {
         }
 
         // Initialize the Logger
-        logger = new Logger(TEST_DIRECTORY, TEST_FILE);
+        logger = new Logger(TEST_DIRECTORY, TEST_FILE,true);
     }
 
     @After

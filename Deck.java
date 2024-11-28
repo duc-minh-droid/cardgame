@@ -1,7 +1,3 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -19,6 +15,7 @@ public class Deck {
     public int size() {
         return cards.size();
     }
+
     public void addCard(Card card) {
         try {
             lock.lock();
@@ -38,7 +35,7 @@ public class Deck {
 
     }
 
-    public boolean isEmpty(){
+    public Boolean isEmpty() {
         return cards.isEmpty();
     }
 
@@ -47,7 +44,7 @@ public class Deck {
     }
 
     public void logDeckContents() {
-        Logger logger = new Logger("gameOutput", "player" + id + "_output.txt");
+        Logger logger = new Logger("gameOutput", "player" + id + "_output.txt", false);
         logger.logDeckContents(id, cards);
     }
 }

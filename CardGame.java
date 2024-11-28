@@ -1,13 +1,19 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.io.*;
+import java.util.*;
 
 public class CardGame {
-    List<Player> players;        
-    List<Deck> decks;
-    List<Card> pack;
+    public List<Player> players;        
+    public List<Deck> decks;
+    public List<Card> pack;
     public AtomicInteger winningPlayer = new AtomicInteger(0);
 
     public CardGame() {
@@ -46,16 +52,48 @@ public class CardGame {
             }
         }
     }
+
+    public List<Card> readPack(String filePath, int n) {
+        List<Card> pack = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Card newCard = new Card(Integer.valueOf(line));
+                pack.add(newCard);
+            }
+        } catch (IOException | NumberFormatException e) {
+            return null; // Return null if an error occurs
+        }
+        Collections.shuffle(pack);
+        return pack.size() == 8 * n ? pack : null; // Check if the list size is as expected
+
+    }
+    public void distributeCards(List<Player> players, List<Deck> decks, List<Card> pack) {
+        int n = players.size();
+        Iterator<Card> iterator = pack.iterator();
+
+        // Distribute cards to players
+        for (int i = 0; i < 4 * n; i++) {
+            Card card = iterator.next();
+            players.get(i % n).addCard(card);
+        }
+
+        // Distribute remaining cards to decks
+        for (int i = 0; i < 4 * n; i++) {
+            Card card = iterator.next();
+            decks.get(i % n).addCard(card);
+        }
+    }
     
     public void initializeGame(int n, String filePath) {
-        pack = HelperFunctions.readPack(filePath, n);
+        pack = readPack(filePath, n);
         for (int i = 1; i <= n; i++) {
             decks.add(new Deck(i));
         }
         for (int i = 1; i <= n; i++) {
             players.add(new Player(i, decks.get(i-1), this));
         }
-        HelperFunctions.distributeCards(players, decks, pack);
+        distributeCards(players, decks, pack);
         for (Player player : players) {
             player.logInitialHand();
         }
