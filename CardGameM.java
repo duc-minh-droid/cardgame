@@ -47,9 +47,7 @@ public class CardGameM {
         }
     }
     
-    public void initializeGame() {
-        int n = getNumberOfPlayers();
-        String filePath = getPackLocation();
+    public void initializeGame(int n, String filePath) {
         pack = HelperFunctions.readPack(filePath, n);
         for (int i = 1; i <= n; i++) {
             decks.add(new Deck(i));
@@ -107,7 +105,7 @@ public class CardGameM {
 
     public static void main(String[] args) throws Exception {
         CardGameM game = new CardGameM();
-        game.initializeGame();
+        game.initializeGame(getNumberOfPlayers(), getPackLocation());
         game.startGame();
         game.endGame();
     }
