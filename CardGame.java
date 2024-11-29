@@ -2,13 +2,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CardGame {
     public List<Player> players;        
@@ -53,7 +48,7 @@ public class CardGame {
         }
     }
 
-    public List<Card> readPack(String filePath, int n) {
+    public static List<Card> readPack(String filePath, int n) {
         List<Card> pack = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -68,7 +63,7 @@ public class CardGame {
         return pack.size() == 8 * n ? pack : null; // Check if the list size is as expected
 
     }
-    public void distributeCards(List<Player> players, List<Deck> decks, List<Card> pack) {
+    public static void distributeCards(List<Player> players, List<Deck> decks, List<Card> pack) {
         int n = players.size();
         Iterator<Card> iterator = pack.iterator();
 

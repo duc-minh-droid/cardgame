@@ -8,12 +8,80 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
 public class CardGameTest {
     private static final String VALID_FILE_PATH = "valid_pack.txt";
+    private static final String INVALID_SIZE_FILE_PATH = "invalid_size_pack.txt";
     private static final String INVALID_FILE_PATH = "txtnon_existent_file.";
+
+    @Before
+    public void setUp() throws IOException {
+        // Create a valid pack file with 8n cards (e.g., 32 cards for n=4 players)
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(VALID_FILE_PATH))) {
+            for (int i = 1; i <= 32; i++) {
+                writer.write(String.valueOf(i));
+                writer.newLine();
+            }
+        }
+
+        // Create an invalid pack file with fewer than 8n cards
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(INVALID_SIZE_FILE_PATH))) {
+            // the pack contains 5 cards
+            writer.write("1\n2\n3\n4\n5\n"); 
+        }
+    }
+
+    @Test 
+    public void testReadPack(){
+        // Read a valid pack file with 8*n cards (for n=4 players)
+        List<Card> pack = CardGame.readPack(VALID_FILE_PATH, 4);
+
+        //The pack should not be null and contain 8*n cards
+        assertNotNull(pack);
+        assertEquals(32,pack.size());
+
+        // Try reading a valid pack file with less than 8*n cards
+        List<Card> invalidPack = CardGame.readPack(INVALID_SIZE_FILE_PATH,4);
+
+        // The pack should be null because the file has fewer than 8n cards
+        assertNull(invalidPack);
+
+    }
+
+    @Test
+    public void testDistributeCards(){
+        // Create players and decks
+        List<Player> players = new ArrayList<>();
+        List<Deck> decks = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            // Create 4 players and 4 decks
+            players.add(new Player(i, new Deck(i), null));
+            decks.add(new Deck(i)); 
+        }
+        
+         // Create a pack of 32 cards (8n cards for 4 players)
+        List<Card> pack = new ArrayList<>();
+        for (int i = 1; i <= 32; i++) {
+            pack.add(new Card(i));
+        }
+
+        // Distribute cards to players and decks
+        CardGame.distributeCards(players, decks, pack);
+ 
+        // Test if each player and ech deck has 4 cards 
+        for(Player player : players){
+            assertEquals(4, player.getHand().size());
+        }
+        for(Deck deck : decks){
+            assertEquals(4, deck.size());
+        }
+    }
+
+
     @Test
     public void testGetNumberOfPlayersValidInput() {
         // Simulate valid user input for 4 players
@@ -55,7 +123,7 @@ public class CardGameTest {
 
         // Call the method and assert the result
         String packLocation = CardGame.getPackLocation();
-        assertEquals("Invalid file path." , packLocation);
+        assertEquals("Pack location should eventually match the valid file path.", VALID_FILE_PATH, packLocation);
     }
 
     @Test

@@ -16,9 +16,11 @@ public class DeckTest{
 
     @Test
     public void testAddCard() {
-        Card card = new Card(5);
-        deck.addCard(card);
-        assertEquals(1, deck.size());
+        Card card1 = new Card(5);
+        Card card2 = new Card(10);
+        deck.addCard(card1);
+        deck.addCard(card2);
+        assertEquals(2, deck.size());
     }
 
     @Test
@@ -38,14 +40,6 @@ public class DeckTest{
         assertTrue(deck.isEmpty());
         deck.addCard((new Card(3)));
         assertFalse(deck.isEmpty());
-    }
-
-    @Test
-    public void testSize() {
-        assertEquals(0, deck.size());
-        deck.addCard(new Card(2));
-        deck.addCard(new Card(3));
-        assertEquals(2, deck.size());
     }
 
     @Test
