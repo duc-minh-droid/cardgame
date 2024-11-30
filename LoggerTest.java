@@ -1,66 +1,55 @@
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import org.junit.*;
+import java.io.*;
+import java.nio.file.*;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
 public class LoggerTest {
 
-    private static final String TEST_DIRECTORY = "testOutput";
-    private static final String TEST_FILE = "temp_log.txt";
+    private static final String TEST_DIR = "testLogs";
+    private static final String TEST_FILE = "test_log.txt";
     private Logger logger;
 
     @Before
     public void setUp() {
-        // Ensure the test directory is created before tests
-        File outputDir = new File(TEST_DIRECTORY);
-        if (!outputDir.exists()) {
-            outputDir.mkdir();
-        }
-
-        // Initialize the Logger
-        logger = new Logger(TEST_DIRECTORY, TEST_FILE,true);
+        logger = new Logger(TEST_DIR, TEST_FILE, true); // Clear the log file on initialization
     }
 
     @After
-    public void tearDown() {
-        // Clean up the test file and directory after each test
-        File testFile = new File(TEST_DIRECTORY, TEST_FILE);
-        if (testFile.exists()) {
-            testFile.delete();
-        }
-
-        File testDirectory = new File(TEST_DIRECTORY);
+    public void deleteOutput() throws IOException {
+        // Clean up the test directory and its contents
+        File testDirectory = new File(TEST_DIR);
         if (testDirectory.exists()) {
+            for (File file : testDirectory.listFiles()) {
+                file.delete();
+            }
             testDirectory.delete();
         }
     }
 
     @Test
-    public void testCreateOutput() {
-        File testFile = new File(TEST_DIRECTORY, TEST_FILE);
+    public void testLog() throws IOException {
+        String message = "drew a card";
+        int playerId = 1;
+        logger.log(message, playerId);
 
-        // Check if the file exists after Logger initialization
-        assertTrue("Log file should be created after Logger initialization.", testFile.exists());
+        
+        Path logPath = Paths.get(TEST_DIR, TEST_FILE);
+        assertTrue(Files.exists(logPath));
+        String content = Files.readString(logPath);
+        assertEquals("player 1 drew a card" + System.lineSeparator(), content);
     }
 
     @Test
-    public void testWriteToFile() throws IOException {
-        String testMessage = "This is a test log message.";
+    public void testLogDeckContents() throws IOException {
+        // Log deck contents
+        logger.logDeckContents(1, Arrays.asList(new Card(3), new Card(7), new Card(5)));
 
-        // Write a message to the file
-        logger.log(testMessage);
-
-        // Verify the message is written
-        File testFile = new File(TEST_DIRECTORY, TEST_FILE);
-        List<String> lines = Files.readAllLines(Paths.get(testFile.getAbsolutePath()));
-
-        assertTrue("Log file should contain the test message.", lines.contains(testMessage));
+        // Verify the deck file content
+        Path deckPath = Paths.get("gameOutput", "deck1_output.txt");
+        assertTrue(Files.exists(deckPath));
+        String content = Files.readString(deckPath);
+        assertEquals("deck1 contents: 3 7 5", content);
     }
 }
