@@ -19,8 +19,8 @@ public class CardGame {
 
     public static int getNumberOfPlayers() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Please enter the number of players: ");
         while (true) { 
+            System.out.println("Please enter the number of players: ");
             try {
                 String input = scanner.nextLine();
                 int n = Integer.parseInt(input);
@@ -31,22 +31,20 @@ public class CardGame {
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a valid integer.");
-                scanner.close();
             }
         }
     }
     
     public static String getPackLocation(){
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Please enter location of pack to load ");
         while (true) { 
+            System.out.println("Please enter location of pack to load ");
             String filePath = scanner.nextLine();
             File file = new File(filePath);
             if (file.exists()) {
                 return filePath; 
             } else {
                 System.out.println("Invalid file path.");
-                scanner.close();
             }
         }
     }

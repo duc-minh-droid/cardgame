@@ -30,13 +30,13 @@ public class Player extends Thread{
 
     public synchronized void addCard(Card card) {
         hand.add(card);
-        notifyAll();
     }
 
     public Boolean checkWinningHand() {
         if (hand.isEmpty()) {
             return false; // Cannot win with an empty hand
         }
+        // check if all 4 cards are the same
         int firstCardValue = hand.get(0).getValue();
         for (int i = 1; i < hand.size(); i++) {
             if (hand.get(i).getValue() != firstCardValue) {
@@ -50,26 +50,28 @@ public class Player extends Thread{
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
         Card drawedCard = deck.removeCard();
         if (drawedCard != null) {
+            // add card to hand
             hand.add(drawedCard);
             logger.log("draws a " + drawedCard.getValue() + " from deck " + deck.getId(), id);
         } else {
             logger.log("draws no card as deck is empty", id);
         }
-    
+        // remove disliked card and put into next player's deck
         int index = findDiscardIndex();
         Card cardToDiscard = hand.remove(index);
         nextPlayerDeck.addCard(cardToDiscard);
         logger.log("discards a " + cardToDiscard.getValue() + " to deck " + nextPlayerDeck.getId(), id);
-    
         logger.log("current hand " + logger.cardsToString(hand));
     }
     
 
     private int findDiscardIndex() {
+        // hashmap that stores frequency of cards, to find out which card to discard
         Map<Integer, Integer> frequencyMap = new HashMap<>();
         for (Card card : hand) {
             frequencyMap.put(card.getValue(), frequencyMap.getOrDefault(card.getValue(), 0) + 1);
         }
+        // getting card with max frequency
         int preferredValue = hand.get(0).getValue();
         int maxFrequency = 0;
         for (Map.Entry<Integer, Integer> entry : frequencyMap.entrySet()) {
@@ -78,6 +80,7 @@ public class Player extends Thread{
                 maxFrequency = entry.getValue();
             }
         }
+        // getting the index of that card
         int discardIndex = -1;
         for (int i = 0; i < hand.size(); i++) {
             if (hand.get(i).getValue() != preferredValue) {
@@ -85,6 +88,7 @@ public class Player extends Thread{
                 break;
             }
         }
+        // if there is no preferred card, discard a random card
         if (discardIndex == -1) {
             Random random = new Random();
             discardIndex = random.nextInt(hand.size());
@@ -96,7 +100,7 @@ public class Player extends Thread{
     public void run() {
         try {
             while (game.winningPlayer.get() == 0) {
-
+                // wait if deck is empty
                 if (deck.isEmpty()) {
                     synchronized (deck) {
                         try {
@@ -121,10 +125,12 @@ public class Player extends Thread{
                 }
             }
         } finally {
+            // if player wins, exit
             if (game.winningPlayer.get() == id) {
                 logger.log("exits", id);
                 logger.log("final hand: " + logger.cardsToString(hand), id);
             } else {
+            // if other player wins, exit
                 int winnerId = game.winningPlayer.get();
                 logger.log("has informed player " + id + " that player " + winnerId + " has won", winnerId);
                 logger.log("exits", id);
