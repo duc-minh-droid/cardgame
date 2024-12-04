@@ -106,11 +106,13 @@ public class Player extends Thread{
                         }
                     }
                 } else {
-                    if (deck.size() > game.playersNum - 1 && game.getNextPlayer(this).getDeck().size() < game.playersNum + 1) {
+                    // only play when left deck is not starved and right deck is not overpopulated
+                    if (deck.size() > 3 && game.getNextPlayer(this).getDeck().size() < 5) {
                         playTurn();
                     }
                     if (checkWinningHand()) {
                         if (game.winningPlayer.compareAndSet(0, id)) {
+                            // if player won
                             logger.log("wins", id);
                             game.notifyAllPlayers();
                             break;
