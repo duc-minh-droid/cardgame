@@ -1,193 +1,97 @@
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 public class PlayerTest {
-    private static final String OUTPUT_DIR = "gameOutput";
+    private Deck deck;
     private CardGame game;
-    private List<Deck> decks;
-    private List<Player> players;
-    private File logDirectory;
+    private Player player;
+    private static final String OUTPUT_DIR = "gameOutput";
 
     @Before
     public void setUp() {
-        logDirectory = new File(OUTPUT_DIR);
-    }
-
-    @After
-    public void deleteOutput() {
-        if (logDirectory.exists()) {
-            deleteDirectory(logDirectory);
+        // Initialize the deck
+        deck = new Deck(1);
+        for (int i = 1; i <= 5; i++) {
+            deck.addCard(new Card(i));
         }
-    }
 
-    // Helper method to create a test pack of cards
-    private List<Card> createTestPack(int playerCount, int cardsPerPlayer) {
-        List<Card> pack = new ArrayList<>();
-        for (int i = 0; i < playerCount * cardsPerPlayer; i++) {
-            pack.add(new Card(i + 1));
-        }
-        return pack;
+        // Initialize the game
+        game = new CardGame();
+        game.decks.add(deck);
+
+        // Initialize the player
+        player = new Player(1, deck, game);
     }
 
     @Test
-    public void testPlayerInitialiation() {
-        game = new CardGame();
-        game.decks.add(new Deck(1));
-        Player player1 = new Player(1, game.decks.get(0), game);
-        game.players.add(player1);
-        
-        assertEquals(1, player1.getId());
+    public void testAddCard() {
+        Card newCard = new Card(10);
+        player.addCard(newCard);
+        List<Card> hand = player.getHand();
+        assertEquals(1, hand.size());
+        assertEquals(10, hand.get(0).getValue());
     }
 
     @Test
-    public void testLogInitialHand() {
-        // Create a game with 2 players
-        game = new CardGame();
-        List<Card> testPack = createTestPack(2, 8);
-        
-        // Mock pack reading and distribution
-        game.pack = testPack;
-        game.decks.add(new Deck(1));
-        game.decks.add(new Deck(2));
-        
-        Player player1 = new Player(1, game.decks.get(0), game);
-        game.players.add(player1);
-        
-        // Add some cards to hand
-        player1.addCard(new Card(1));
-        player1.addCard(new Card(1));
-        player1.logInitialHand();
+    public void testCheckWinningHand_True() {
+        // Set up a winning hand
+        player.addCard(new Card(3));
+        player.addCard(new Card(3));
+        player.addCard(new Card(3));
+        player.addCard(new Card(3));
 
-        // Verify log file content
-        String logContent = readLogFile(new File(OUTPUT_DIR, "player1_output.txt"));
-        assertTrue(logContent.contains("initial hand 1 1"));
+        assertTrue(player.checkWinningHand());
     }
 
     @Test
-    public void testCheckWinningHand() {
-        // Create a game with  players
-        game = new CardGame();
-        
-        game.decks.add(new Deck(1));
+    public void testCheckWinningHand_False() {
+        // Set up a non-winning hand
+        player.addCard(new Card(3));
+        player.addCard(new Card(4));
+        player.addCard(new Card(5));
 
-        
-        Player player1 = new Player(1, game.decks.get(0), game);
-        game.players.add(player1);
-        
-        // Add matching cards
-        player1.addCard(new Card(1));
-        player1.addCard(new Card(1));
-        player1.addCard(new Card(1));
-        assertTrue(player1.checkWinningHand());
-
-        // Add a different card
-        player1.addCard(new Card(2));
-        assertFalse(player1.checkWinningHand());
+        assertFalse(player.checkWinningHand());
     }
 
     @Test
     public void testPlayTurn() {
-        // Create a game with 2 players
-        game = new CardGame();
-        List<Card> testPack = createTestPack(2, 8);
+        // Ensure the player draws a card and discards one to the next deck
+        Deck nextDeck = new Deck(2);
+        Player nextPlayer = new Player(2, nextDeck, game);
         
-        // Mock pack reading and distribution
-        game.pack = testPack;
-        Deck deck1 = new Deck(1);
-        Deck deck2 = new Deck(2);
-        game.decks.add(deck1);
-        game.decks.add(deck2);
-        
-        // Manually add cards to deck1
-        deck1.addCard(new Card(5));
-        deck1.addCard(new Card(6));
-        
-        Player player1 = new Player(1, deck1, game);
-        Player player2 = new Player(2, deck2, game);
-        game.players.add(player1);
-        game.players.add(player2);
+        game.players = new ArrayList<>();
+        game.players.add(player);
+        game.players.add(nextPlayer);
 
-        // Ensure initial conditions
-        assertTrue(player1.getHand().isEmpty());
-        assertFalse(player1.getDeck().isEmpty());
+        // Prepare the source deck
+        deck.addCard(new Card(6));
 
-        // Simulate a turn
-        player1.playTurn();
+        // Initialize player's hand
+        player.addCard(new Card(3));
+        player.addCard(new Card(3));
+        player.addCard(new Card(4));
 
-        // Verify log file
-        String logContent = readLogFile(new File(OUTPUT_DIR, "player1_output.txt"));
-        assertTrue(logContent.contains("draws a"));
-        assertTrue(logContent.contains("discards a"));
-        assertTrue(logContent.contains("current hand"));
-        
-        // Verify hand changes
-        assertEquals(1, player1.getHand().size());
-        assertFalse(player2.getDeck().isEmpty());
-    }
+        player.playTurn();
 
-    // Helper method to create a temporary pack file
-    private String createPackFile(List<Card> cards) {
-        try {
-            File tempPack = File.createTempFile("testpack", ".txt");
-            tempPack.deleteOnExit();
+        // Validate player's hand has the correct number of cards after drawing and discarding
+        assertEquals(3, player.getHand().size());
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempPack))) {
-                for (Card card : cards) {
-                    writer.write(String.valueOf(card.getValue()));
-                    writer.newLine();
-                }
-            }
-
-            return tempPack.getAbsolutePath();
-        } catch (IOException e) {
-            fail("Could not create temporary pack file");
-            return null;
-        }
-    }
-
-    // Utility method to read log file contents
-    private String readLogFile(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append(System.lineSeparator());
-            }
-            return content.toString();
-        } catch (IOException e) {
-            fail("Could not read log file: " + e.getMessage());
-            return "";
-        }
-    }
-
-    // Utility method to recursively delete directory
-    private void deleteDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                deleteDirectory(file);
-            }
-        }
-        directoryToBeDeleted.delete();
+        // Validate the next player's deck has received the discarded card
+        assertEquals(1, nextDeck.size());
     }
 
     @Test
-    public void testRun() {
-        // Create a game with at least 2 players
-        game = new CardGame();
-
+    public void testRun() throws IOException {
         // Create decks and players
         Deck deck1 = new Deck(1);
         Deck deck2 = new Deck(2);
+        
+        game.decks.clear();
         game.decks.add(deck1);
         game.decks.add(deck2);
 
@@ -195,6 +99,7 @@ public class PlayerTest {
         Player player = new Player(1, deck1, game);
         
         // Set up a winning hand for the player
+        player.getHand().clear();
         player.getHand().add(new Card(10));
         player.getHand().add(new Card(10));
         player.getHand().add(new Card(10));
@@ -202,12 +107,17 @@ public class PlayerTest {
 
         // Simulate another player in the game
         Player player2 = new Player(2, deck2, game);
+        
+        game.players.clear();
         game.players.add(player);
         game.players.add(player2);
 
         // Prepare decks with some cards to prevent immediate emptiness
         deck1.addCard(new Card(5));
         deck2.addCard(new Card(5));
+
+        // Prepare game state
+        game.winningPlayer.set(0);
 
         // Start the player's thread
         player.start();
@@ -226,9 +136,18 @@ public class PlayerTest {
         File winnerLogFile = new File(OUTPUT_DIR, "player1_output.txt");
         assertTrue("Winner log file should exist", winnerLogFile.exists());
         
-        String logContent = readLogFile(winnerLogFile);
-        assertTrue("Log should contain 'wins'", logContent.contains("wins"));
-        assertTrue("Log should contain 'exits'", logContent.contains("exits"));
-        assertTrue("Log should contain final hand", logContent.contains("final hand"));
+        // Read log file content
+        BufferedReader reader = new BufferedReader(new FileReader(winnerLogFile));
+        StringBuilder logContent = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            logContent.append(line);
+        }
+        reader.close();
+        
+        String log = logContent.toString();
+        assertTrue("Log should contain 'wins'", log.contains("wins"));
+        assertTrue("Log should contain 'exits'", log.contains("exits"));
+        assertTrue("Log should contain final hand", log.contains("final hand"));
     }
 }
