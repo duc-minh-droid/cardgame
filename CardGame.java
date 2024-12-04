@@ -10,13 +10,14 @@ public class CardGame {
     public List<Deck> decks;
     public List<Card> pack;
     public AtomicInteger winningPlayer = new AtomicInteger(0);
+    public int playersNum;
 
     public CardGame() {
         players = new ArrayList<>();
         decks = new ArrayList<>();
     }
 
-    public static int getNumberOfPlayers() {
+    public int getNumberOfPlayers() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter the number of players: ");
         while (true) { 
@@ -24,6 +25,7 @@ public class CardGame {
                 String input = scanner.nextLine();
                 int n = Integer.parseInt(input);
                 if (n >= 2) {
+                    playersNum = n;
                     return n;
                 } else {
                     System.out.println("The game requires at least 2 players.");
@@ -34,7 +36,7 @@ public class CardGame {
         }
     }
     
-    public static String getPackLocation(){
+    public String getPackLocation(){
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter location of pack to load ");
         while (true) { 
@@ -138,7 +140,8 @@ public class CardGame {
 
     public static void main(String[] args) throws Exception {
         CardGame game = new CardGame();
-        game.initializeGame(getNumberOfPlayers(), getPackLocation());
+        game.initializeGame(game.getNumberOfPlayers(), game.getPackLocation());
+        game.logDecks();
         game.startGame();
         game.endGame();
     }

@@ -28,11 +28,15 @@ public class Player extends Thread{
         logger.log("initial hand " + logger.cardsToString(hand), id);
     }
 
-    public void addCard(Card card) {
+    public synchronized void addCard(Card card) {
         hand.add(card);
+        notifyAll();
     }
 
     public Boolean checkWinningHand() {
+        if (hand.isEmpty()) {
+            return false; // Cannot win with an empty hand
+        }
         int firstCardValue = hand.get(0).getValue();
         for (int i = 1; i < hand.size(); i++) {
             if (hand.get(i).getValue() != firstCardValue) {
@@ -44,7 +48,7 @@ public class Player extends Thread{
     
     public void playTurn() {
         Deck nextPlayerDeck = game.getNextPlayer(this).deck;
-        Card drawedCard = deck.drawCard();
+        Card drawedCard = deck.removeCard();
         if (drawedCard != null) {
             hand.add(drawedCard);
             logger.log("draws a " + drawedCard.getValue() + " from deck " + deck.getId(), id);
@@ -82,7 +86,8 @@ public class Player extends Thread{
             }
         }
         if (discardIndex == -1) {
-            discardIndex = 0;
+            Random random = new Random();
+            discardIndex = random.nextInt(hand.size());
         }
         return discardIndex;
     }
@@ -93,15 +98,17 @@ public class Player extends Thread{
             while (game.winningPlayer.get() == 0) {
 
                 if (deck.isEmpty()) {
-                    synchronized (this) {
+                    synchronized (deck) {
                         try {
-                            wait();
+                            deck.wait();
                         } catch (InterruptedException e) {
                             break;
                         }
                     }
                 } else {
-                    playTurn();
+                    if (deck.size() > game.playersNum - 1 && game.getNextPlayer(this).getDeck().size() < game.playersNum + 1) {
+                        playTurn();
+                    }
                     if (checkWinningHand()) {
                         if (game.winningPlayer.compareAndSet(0, id)) {
                             logger.log("wins", id);
@@ -118,13 +125,13 @@ public class Player extends Thread{
             } else {
                 int winnerId = game.winningPlayer.get();
                 logger.log("has informed player " + id + " that player " + winnerId + " has won", winnerId);
-                logger.log("exits");
-                logger.log("hand: " + logger.cardsToString(hand));
+                logger.log("exits", id);
+                logger.log("final hand: " + logger.cardsToString(hand), id);
             }
 
             // Final notify to prevent deadlock
-            synchronized (game.getNextPlayer(this)) {
-                game.getNextPlayer(this).notify();
+            synchronized (deck) {
+                deck.notify();
             }
         }
     }

@@ -62,13 +62,5 @@ public class Logger {
             System.err.println("Error writing log for Deck " + id + ": " + e.getMessage());
         }
     }
-
-    public void close() {
-        try {
-            writer.close();
-        } catch (IOException e) {
-            System.err.println("Error closing log file for " + logFile.getName() + ": " + e.getMessage());
-        }
-    }
 }
 

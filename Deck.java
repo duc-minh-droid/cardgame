@@ -25,7 +25,7 @@ public class Deck {
         }
     }
 
-    public Card drawCard() {
+    public Card removeCard() {
         try {
             lock.lock();
             return cards.remove(0);

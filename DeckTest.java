@@ -30,7 +30,7 @@ public class DeckTest{
         deck.addCard(card1);
         deck.addCard(card2);
 
-        Card drawnCard = deck.drawCard();
+        Card drawnCard = deck.removeCard();
         assertEquals(5, drawnCard.getValue());
         assertEquals(1, deck.size());
     }
