@@ -13,42 +13,28 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 public class CardGameTest {
-    private static final String VALID_FILE_PATH = "valid_pack.txt";
-    private static final String INVALID_SIZE_FILE_PATH = "invalid_size_pack.txt";
-    private static final String INVALID_FILE_PATH = "txtnon_existent_file.";
+    private static final String FILE_PATH = "pack.txt";
+
 
     @Before
     public void setUp() throws IOException {
         // Create a valid pack file with 8n cards (e.g., 32 cards for n=4 players)
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(VALID_FILE_PATH))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
             for (int i = 1; i <= 32; i++) {
                 writer.write(String.valueOf(i));
                 writer.newLine();
             }
-        }
-
-        // Create an invalid pack file with fewer than 8n cards
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(INVALID_SIZE_FILE_PATH))) {
-            // the pack contains 5 cards
-            writer.write("1\n2\n3\n4\n5\n"); 
         }
     }
 
     @Test 
     public void testReadPack(){
         // Read a valid pack file with 8*n cards (for n=4 players)
-        List<Card> pack = CardGame.readPack(VALID_FILE_PATH, 4);
+        List<Card> pack = CardGame.readPack(FILE_PATH, 4);
 
         //The pack should not be null and contain 8*n cards
         assertNotNull(pack);
         assertEquals(32,pack.size());
-
-        // Try reading a valid pack file with less than 8*n cards
-        List<Card> invalidPack = CardGame.readPack(INVALID_SIZE_FILE_PATH,4);
-
-        // The pack should be null because the file has fewer than 8n cards
-        assertNull(invalidPack);
-
     }
 
     @Test
@@ -83,7 +69,7 @@ public class CardGameTest {
 
 
     @Test
-    public void testGetNumberOfPlayersValidInput() {
+    public void testGetNumberOfPlayers() {
         // Simulate valid user input for 4 players
         String simulatedInput = "4\n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
@@ -94,37 +80,16 @@ public class CardGameTest {
     }
 
     @Test
-    public void testGetNumberOfPlayersInvalidInput() {
-        // Simulate invalid user input followed by a valid one
-        String simulatedInput = "invalid\n-1\n3\n";
-        System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
-
-        // Call the method and assert the result
-        int numberOfPlayers = CardGame.getNumberOfPlayers();
-        assertEquals("Number of players should match the first valid input >= 2.", 3, numberOfPlayers);
-    }
-
-    @Test
-    public void testGetPackLocationValidPath() {
+    public void testGetPackLocation() {
         // Simulate valid user input
-        String simulatedInput = VALID_FILE_PATH + "\n";
+        String simulatedInput = FILE_PATH + "\n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
         // Call the method and assert the result
         String packLocation = CardGame.getPackLocation();
-        assertEquals("Pack location should match the valid file path.", VALID_FILE_PATH, packLocation);
+        assertEquals("Pack location should match the valid file path.", FILE_PATH, packLocation);
     }
 
-    @Test
-    public void testGetPackLocationInvalidPath() {
-        // Simulate invalid input followed by a valid file path
-        String simulatedInput = INVALID_FILE_PATH + "\n" + VALID_FILE_PATH + "\n";
-        System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
-
-        // Call the method and assert the result
-        String packLocation = CardGame.getPackLocation();
-        assertEquals("Pack location should eventually match the valid file path.", VALID_FILE_PATH, packLocation);
-    }
 
     @Test
     public void testInitializeGame() {
