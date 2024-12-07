@@ -33,9 +33,6 @@ public class Player extends Thread{
     }
 
     public Boolean checkWinningHand() {
-        if (hand.isEmpty()) {
-            return false; // Cannot win with an empty hand
-        }
         // check if all 4 cards are the same
         int firstCardValue = hand.get(0).getValue();
         for (int i = 1; i < hand.size(); i++) {
@@ -100,27 +97,16 @@ public class Player extends Thread{
     public void run() {
         try {
             while (game.winningPlayer.get() == 0) {
-                // wait if deck is empty
-                if (deck.isEmpty()) {
-                    synchronized (deck) {
-                        try {
-                            deck.wait();
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                    }
-                } else {
-                    // only play when left deck is not starved and right deck is not overpopulated
-                    if (deck.size() > 3 && game.getNextPlayer(this).getDeck().size() < 5) {
-                        playTurn();
-                    }
-                    if (checkWinningHand()) {
-                        if (game.winningPlayer.compareAndSet(0, id)) {
-                            // if player won
-                            logger.log("wins", id);
-                            game.notifyAllPlayers();
-                            break;
-                        }
+                // only play when left deck is not starved and right deck is not overpopulated
+                if (deck.size() > 3 && game.getNextPlayer(this).getDeck().size() < 5) {
+                    playTurn();
+                }
+                if (checkWinningHand()) {
+                    if (game.winningPlayer.compareAndSet(0, id)) {
+                        // if player won
+                        logger.log("wins", id);
+                        game.notifyAllPlayers();
+                        break;
                     }
                 }
             }
@@ -135,11 +121,6 @@ public class Player extends Thread{
                 logger.log("has informed player " + id + " that player " + winnerId + " has won", winnerId);
                 logger.log("exits", id);
                 logger.log("final hand: " + logger.cardsToString(hand), id);
-            }
-
-            // Final notify to prevent deadlock
-            synchronized (deck) {
-                deck.notify();
             }
         }
     }

@@ -82,6 +82,19 @@ public class CardGame {
     }
     
     public void initializeGame(int n, String filePath) {
+        // clear any existing previous game output
+        File gameOutputDir = new File("gameOutput");
+        if (gameOutputDir.exists() && gameOutputDir.isDirectory()) {
+            File[] files = gameOutputDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        file.delete();
+                    }
+                }
+            }
+        }
+
         pack = readPack(filePath, n);
         playersNum = n;
         // initialize each deck
